@@ -18,16 +18,7 @@ type StacksData struct {
 	Stacks        []Stack     `json:"stacks"`
 }
 
-func (data StacksData) GetStackByName(stackName string) (Stack, error) {
-    for _, stack := range data.Stacks {
-        if stack.Name == stackName {
-            return stack, nil
-        }
-    }
-    return Stack{}, fmt.Errorf("stack with name %s not found", stackName)
-}
-
-func (data StacksData) GetStackPtrByName(stackName string) (*Stack, error) {
+func (data StacksData) GetStackByName(stackName string) (*Stack, error) {
     for i, stack := range data.Stacks {
         if stack.Name == stackName {
             return &data.Stacks[i], nil
@@ -123,7 +114,7 @@ func Add(branchName string) {
     }
 
     data, _ := LoadStacks()
-    stack, _ := data.GetStackPtrByName(data.CurrentStack)
+    stack, _ := data.GetStackByName(data.CurrentStack)
     stack.Branches = append(stack.Branches, branchName)
     stack.Branches = slices.Compact(stack.Branches)
     WriteStacksFile(data)
