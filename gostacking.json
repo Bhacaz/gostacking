@@ -12,18 +12,6 @@
             "branches": [
                 "main"
             ]
-        },
-        {
-            "name": "lest",
-            "branches": [
-                "main"
-            ]
-        },
-        {
-            "name": "list",
-            "branches": [
-                "main"
-            ]
         }
     ]
 }

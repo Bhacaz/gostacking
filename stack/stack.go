@@ -143,3 +143,28 @@ func SwitchByNumber(number int) {
     fmt.Println("Switched to stack", stack.Name)
 }
 
+func Delete(stackName string) {
+    data, _ := LoadStacks()
+    var filteredStacks []Stack
+    for _, stack := range data.Stacks {
+        if stack.Name != stackName {
+            filteredStacks = append(filteredStacks, stack)
+        }
+    }
+
+    if len(filteredStacks) == len(data.Stacks) {
+        fmt.Println("Stack", stackName, "does not exist")
+        return
+    }
+
+    data.Stacks = filteredStacks
+
+    if data.CurrentStack == stackName {
+        data.CurrentStack = data.Stacks[0].Name
+    }
+
+    WriteStacksFile(data)
+    fmt.Println("Stack", stackName, "deleted from stack")
+    fmt.Println("Current stack status:")
+    fmt.Println(CurrentStackStatus())
+}
