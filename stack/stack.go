@@ -83,10 +83,10 @@ func CurrentStackStatus() string {
 
     var displayBranches string
     branches, _ := data.GetBranchesByName(data.CurrentStack)
-    for _, branch := range branches {
-        displayBranches += branch + "\n\t"
+    for i, branch := range branches {
+        displayBranches += fmt.Sprintf("%d. " + branch + "\n", i + 1)
     }
-    return data.CurrentStack + "\n\t" + displayBranches
+    return data.CurrentStack + "\n" + displayBranches
 }
 
 func New(stackName string) {
