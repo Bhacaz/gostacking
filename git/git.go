@@ -22,3 +22,27 @@ func CurrentBranchName() string {
 
     return ref.Name().Short()
 }
+
+func BranchExists(branchName string) bool {
+    r, err := git.PlainOpen(".")
+    if err != nil {
+        fmt.Println(err)
+    }
+
+    refs, err := r.Branches()
+    if err != nil {
+        fmt.Println(err)
+    }
+
+    for {
+        ref, err := refs.Next()
+        if err != nil {
+            break
+        }
+        if ref.Name().Short() == branchName {
+            return true
+        }
+    }
+    return false
+}
+

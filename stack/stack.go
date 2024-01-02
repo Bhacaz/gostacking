@@ -17,6 +17,20 @@ type StacksData struct {
 	Stacks        []Stack     `json:"stacks"`
 }
 
+func (data StacksData) GetStackByName(stackName string) (Stack, error) {
+    for _, stack := range data.Stacks {
+        if stack.Name == stackName {
+            return stack, nil
+        }
+    }
+    return Stack{}, fmt.Errorf("stack with name %s not found", stackName)
+}
+
+func (data StacksData) GetBranchesByName(stackName string) ([]string, error) {
+	stack, _ := data.GetStackByName(stackName)
+    return stack.Branches, nil
+}
+
 func WriteStacksFile(stackData StacksData) {
     jsonData, err := json.MarshalIndent(stackData, "", "    ")
         if err != nil {
@@ -50,8 +64,6 @@ func LoadStacks() (StacksData, error) {
 }
 
 func CurrentStackName() string {
-    // read the json file called gostacking.json in the current directory
-    // return the currentStack value
     data, err := LoadStacks()
     if err != nil {
         fmt.Println("Error loading JSON:", err)
@@ -59,6 +71,21 @@ func CurrentStackName() string {
     }
 
     return data.CurrentStack
+}
+
+func CurrentStackStatus() string {
+    data, err := LoadStacks()
+    if err != nil {
+        fmt.Println("Error loading JSON:", err)
+        return ""
+    }
+
+    var displayBranches string
+    branches, _ := data.GetBranchesByName(data.CurrentStack)
+    for _, branch := range branches {
+        displayBranches += branch + "\n\t"
+    }
+    return data.CurrentStack + "\n\t" + displayBranches
 }
 
 func New(stackName string) {
@@ -79,6 +106,16 @@ func New(stackName string) {
 func Add(branchName string) {
      if branchName == "" {
         branchName = git.CurrentBranchName()
+    } else {
+        if !git.BranchExists(branchName) {
+            fmt.Println("Branch", branchName, "does not exist")
+        }
     }
-    fmt.Println("Stack module add called", branchName)
+
+    data, _ := LoadStacks()
+    stack, _ := data.GetStackByName(data.CurrentStack)
+    stack.Branches = append(stack.Branches, branchName)
+    WriteStacksFile(data)
+    fmt.Println(data)
+    fmt.Println("Branch", branchName, "added to stack", data.CurrentStack)
 }

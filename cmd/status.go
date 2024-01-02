@@ -15,7 +15,7 @@ var statusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "Get current stack.",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(stack.CurrentStackName())
+		fmt.Println(stack.CurrentStackStatus())
 	},
 }
 
