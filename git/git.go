@@ -48,9 +48,13 @@ func SyncBranches(branches []string, checkoutBranchEnd string) {
     r, _ := git.PlainOpen(".")
     w, _ := r.Worktree()
     // Return if contains unstaged changes
-    status, _ := w.Status()
+    status, err := w.Status()
+    if err != nil {
+        fmt.Println(err)
+    }
     if !status.IsClean() {
         fmt.Println("Unstaged changes. Please commit or stash.")
+        fmt.Println(status)
         return
     }
 
@@ -61,7 +65,6 @@ func SyncBranches(branches []string, checkoutBranchEnd string) {
         fmt.Println("Pulling", branch)
         if err != nil {
             fmt.Println(err, ". Continuing...")
-            break
         }
 
         // Nothing to merge on first branch
@@ -70,14 +73,14 @@ func SyncBranches(branches []string, checkoutBranchEnd string) {
         }
         toMerge := branches[i - 1]
         fmt.Println("Merging", toMerge, "into", branch)
-        cmd := exec.Command("git", "pull", ".", toMerge)
+        cmd := exec.Command("git", "pull", ".", toMerge, "--ff-only")
         err = cmd.Run()
         if err != nil {
             fmt.Println(err)
             break
         }
     }
-    err := w.Checkout(&git.CheckoutOptions{Branch: plumbing.NewBranchReferenceName(checkoutBranchEnd)})
+    err = w.Checkout(&git.CheckoutOptions{Branch: plumbing.NewBranchReferenceName(checkoutBranchEnd)})
     if err != nil {
         fmt.Println(err)
     }
