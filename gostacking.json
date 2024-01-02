@@ -4,7 +4,8 @@
         {
             "name": "test1",
             "branches": [
-                "feature_part_1"
+                "feature_part_1",
+                "feature_part_2"
             ]
         }
     ]

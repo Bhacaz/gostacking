@@ -4,6 +4,7 @@ import (
     "fmt"
     "encoding/json"
     "io/ioutil"
+    "slices"
     "github.com/gostacking/git"
 )
 
@@ -24,6 +25,15 @@ func (data StacksData) GetStackByName(stackName string) (Stack, error) {
         }
     }
     return Stack{}, fmt.Errorf("stack with name %s not found", stackName)
+}
+
+func (data StacksData) GetStackPtrByName(stackName string) (*Stack, error) {
+    for i, stack := range data.Stacks {
+        if stack.Name == stackName {
+            return &data.Stacks[i], nil
+        }
+    }
+    return &Stack{}, fmt.Errorf("stack with name %s not found", stackName)
 }
 
 func (data StacksData) GetBranchesByName(stackName string) ([]string, error) {
@@ -113,9 +123,9 @@ func Add(branchName string) {
     }
 
     data, _ := LoadStacks()
-    stack, _ := data.GetStackByName(data.CurrentStack)
+    stack, _ := data.GetStackPtrByName(data.CurrentStack)
     stack.Branches = append(stack.Branches, branchName)
+    stack.Branches = slices.Compact(stack.Branches)
     WriteStacksFile(data)
-    fmt.Println(data)
     fmt.Println("Branch", branchName, "added to stack", data.CurrentStack)
 }
