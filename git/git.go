@@ -3,6 +3,7 @@ package git
 import (
     "fmt"
     "os/exec"
+    "strings"
     "gopkg.in/src-d/go-git.v4"
     "gopkg.in/src-d/go-git.v4/plumbing"
 )
@@ -73,8 +74,7 @@ func SyncBranches(branches []string, checkoutBranchEnd string) {
         }
         toMerge := branches[i - 1]
         fmt.Println("Merging", toMerge, "into", branch)
-        cmd := exec.Command("git", "pull", ".", toMerge, "--ff-only")
-        err = cmd.Run()
+        err = executeGitCommand(branch, toMerge)
         if err != nil {
             fmt.Println(err)
             break
@@ -84,4 +84,16 @@ func SyncBranches(branches []string, checkoutBranchEnd string) {
     if err != nil {
         fmt.Println(err)
     }
+}
+
+func executeGitCommand(branch string, toMerge string) error {
+    cmd := exec.Command("git", "merge", toMerge, "--no-squash", "--commit", "-m", "\"gostacking - Merge " + toMerge + " into " + branch + "\"")
+    output, err := cmd.CombinedOutput()
+    if err != nil {
+        fmt.Println("Command output:", string(output))
+        return err
+    }
+    outputString := strings.TrimSpace(string(output))
+    fmt.Println("Git merge output:", outputString)
+    return nil
 }
