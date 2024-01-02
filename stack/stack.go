@@ -14,8 +14,8 @@ type Stack struct {
 }
 
 type StacksData struct {
-	CurrentStack string `json:"currentStack"`
-	Stacks        []Stack     `json:"stacks"`
+	CurrentStack string     `json:"currentStack"`
+	Stacks        []Stack   `json:"stacks"`
 }
 
 func (data StacksData) GetStackByName(stackName string) (*Stack, error) {
@@ -90,15 +90,23 @@ func CurrentStackStatus() string {
 }
 
 func New(stackName string) {
-    stackData := StacksData{
-        CurrentStack: stackName,
-        Stacks: []Stack{
-            Stack{
-                Name: stackName,
-                Branches: []string{git.CurrentBranchName()},
-            },
-        },
-    }
+//     stackData := StacksData{
+//         CurrentStack: stackName,
+//         Stacks: []Stack{
+//             Stack{
+//                 Name: stackName,
+//                 Branches: []string{git.CurrentBranchName()},
+//             },
+//         },
+//     }
+
+    newStack := Stack{
+                    Name: stackName,
+                    Branches: []string{git.CurrentBranchName()},
+                }
+
+    data = LoadStacks()
+    data.Stacks = append(data.Stacks, newStack)
 
     WriteStacksFile(stackData)
 	fmt.Println("New stack created", stackName)
@@ -119,4 +127,12 @@ func Add(branchName string) {
     stack.Branches = slices.Compact(stack.Branches)
     WriteStacksFile(data)
     fmt.Println("Branch", branchName, "added to stack", data.CurrentStack)
+}
+
+func List() {
+    data, _ := LoadStacks()
+    fmt.Println("Current stack:", data.CurrentStack)
+    for _, stack := range data.Stacks {
+        fmt.Println(stack.Name)
+    }
 }
