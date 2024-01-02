@@ -10,6 +10,6 @@ go mod tidy
 - [x] Status (current stack and list branches)
 - [x] Add current branch to stack
 - [x] Add specific branch to stack
-- [ ] List, show all stacks
+- [x] List, show all stacks
 - [ ] Switch, switch to stack
 - [ ] Remove, remove stack

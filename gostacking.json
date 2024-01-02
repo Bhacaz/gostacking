@@ -6,6 +6,24 @@
             "branches": [
                 "feature_part_1"
             ]
+        },
+        {
+            "name": "hello1",
+            "branches": [
+                "main"
+            ]
+        },
+        {
+            "name": "lest",
+            "branches": [
+                "main"
+            ]
+        },
+        {
+            "name": "list",
+            "branches": [
+                "main"
+            ]
         }
     ]
 }

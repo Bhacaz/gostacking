@@ -39,7 +39,7 @@ func WriteStacksFile(stackData StacksData) {
             return
         }
 
-    fmt.Println(string(jsonData))
+//     fmt.Println(string(jsonData))
     // Write the JSON data to a file
     err = ioutil.WriteFile("gostacking.json", jsonData, 0644)
     if err != nil {
@@ -127,3 +127,19 @@ func List() {
         fmt.Printf("%d. %s\n", i + 1, stack.Name)
     }
 }
+
+func SwitchByName(stackName string) {
+    data, _ := LoadStacks()
+    data.CurrentStack = stackName
+    WriteStacksFile(data)
+    fmt.Println("Switched to stack", stackName)
+}
+
+func SwitchByNumber(number int) {
+    data, _ := LoadStacks()
+    stack := data.Stacks[number - 1]
+    data.CurrentStack = stack.Name
+    WriteStacksFile(data)
+    fmt.Println("Switched to stack", stack.Name)
+}
+
