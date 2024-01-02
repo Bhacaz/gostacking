@@ -17,7 +17,6 @@ var addCmd = &cobra.Command{
 	Long: `Add a branch to the current stack.`,
 	Args: cobra.RangeArgs(0, 1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("add called")
 		if len(args) == 0 {
 		    stack.Add("")
 		} else {

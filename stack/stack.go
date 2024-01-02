@@ -90,25 +90,16 @@ func CurrentStackStatus() string {
 }
 
 func New(stackName string) {
-//     stackData := StacksData{
-//         CurrentStack: stackName,
-//         Stacks: []Stack{
-//             Stack{
-//                 Name: stackName,
-//                 Branches: []string{git.CurrentBranchName()},
-//             },
-//         },
-//     }
-
     newStack := Stack{
                     Name: stackName,
                     Branches: []string{git.CurrentBranchName()},
                 }
 
-    data = LoadStacks()
+    data, _ := LoadStacks()
+    data.CurrentStack = stackName
     data.Stacks = append(data.Stacks, newStack)
 
-    WriteStacksFile(stackData)
+    WriteStacksFile(data)
 	fmt.Println("New stack created", stackName)
 }
 
@@ -132,7 +123,7 @@ func Add(branchName string) {
 func List() {
     data, _ := LoadStacks()
     fmt.Println("Current stack:", data.CurrentStack)
-    for _, stack := range data.Stacks {
-        fmt.Println(stack.Name)
+    for i, stack := range data.Stacks {
+        fmt.Printf("%d. %s\n", i + 1, stack.Name)
     }
 }

@@ -1,10 +1,10 @@
 {
-    "currentStack": "test2",
+    "currentStack": "try_new",
     "stacks": [
         {
-            "name": "test2",
+            "name": "try_new",
             "branches": [
-                "main"
+                "feature_part_1"
             ]
         }
     ]
