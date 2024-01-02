@@ -4,6 +4,7 @@
         {
             "name": "try_new",
             "branches": [
+                "main",
                 "feature_part_1"
             ]
         },

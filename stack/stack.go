@@ -168,3 +168,10 @@ func Delete(stackName string) {
     fmt.Println("Current stack status:")
     fmt.Println(CurrentStackStatus())
 }
+
+func Sync() {
+    data, _ := LoadStacks()
+    currentBranch := git.CurrentBranchName()
+    branches, _ := data.GetBranchesByName(data.CurrentStack)
+    git.SyncBranches(branches, currentBranch)
+}

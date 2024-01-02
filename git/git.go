@@ -3,6 +3,7 @@ package git
 import (
     "fmt"
     "gopkg.in/src-d/go-git.v4"
+    "gopkg.in/src-d/go-git.v4/plumbing"
 )
 
 func CurrentBranchName() string {
@@ -46,3 +47,28 @@ func BranchExists(branchName string) bool {
     return false
 }
 
+func SyncBranches(branches []string, checkoutBranchEnd string) {
+    r, _ := git.PlainOpen(".")
+    w, _ := r.Worktree()
+    fmt.Println("Git module syncBranches called")
+    for i, branch := range branches {
+        if i == 0 {
+            continue
+        }
+        toMerge := branches[i - 1]
+        fmt.Println("Merging", toMerge, "into", branch)
+        err := w.Checkout(&git.CheckoutOptions{Branch: plumbing.NewBranchReferenceName(branch)})
+        err = w.Pull(&git.PullOptions{
+                    RemoteName: ".",
+                    ReferenceName: plumbing.NewBranchReferenceName(toMerge),
+                })
+        if err != nil {
+            fmt.Println(err)
+            break
+        }
+    }
+    err := w.Checkout(&git.CheckoutOptions{Branch: plumbing.NewBranchReferenceName(checkoutBranchEnd)})
+    if err != nil {
+        fmt.Println(err)
+    }
+}

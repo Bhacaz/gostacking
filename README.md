@@ -12,4 +12,5 @@ go mod tidy
 - [x] Add specific branch to stack
 - [x] List, show all stacks
 - [x] Switch, switch to stack
-- [ ] Remove, remove stack
+- [X] Remove, remove stack
+- [ ] Sync all branch in a stack (merge each one into the other)
