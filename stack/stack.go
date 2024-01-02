@@ -4,58 +4,76 @@ import (
     "fmt"
     "encoding/json"
     "io/ioutil"
-    "os"
     "github.com/gostacking/git"
 )
 
-func CurrentStackName() string {
-    fmt.Println("Stack module currentStackName called")
-    // read the json file called gostacking.json in the current directory
-    // return the currentStack value
-
-    // Open our jsonFile
-    jsonFile, err := os.Open("gostacking.json")
-    // if we os.Open returns an error then handle it
-    if err != nil {
-        fmt.Println(err)
-    }
-    fmt.Println("Successfully Opened gostacking.json")
-    // defer the closing of our jsonFile so that we can parse it later on
-    defer jsonFile.Close()
-
-    // read our opened jsonFile as a byte array.
-    byteValue, _ := ioutil.ReadAll(jsonFile)
-
-    // we initialize our Users array
-    var currentStack map[string]string
-
-    // we unmarshal our byteArray which contains our
-    // jsonFile's content into 'users' which we defined above
-    json.Unmarshal(byteValue, &currentStack)
-
-    return currentStack["currentStack"]
+type Stack struct {
+	Name     string   `json:"name"`
+	Branches []string `json:"branches"`
 }
 
-func New(stackName string) {
-    fmt.Println("Stack module new called")
-    // create a json file called gostacking.json in the current directory
+type StacksData struct {
+	CurrentStack string `json:"currentStack"`
+	Stacks        []Stack     `json:"stacks"`
+}
 
-    currentStack := map[string]string{ "currentStack": stackName }
-
-    jsonData, err := json.MarshalIndent(currentStack, "", "    ")
+func WriteStacksFile(stackData StacksData) {
+    jsonData, err := json.MarshalIndent(stackData, "", "    ")
         if err != nil {
             fmt.Println("Error marshaling JSON:", err)
             return
         }
 
-	// Write the JSON data to a file
-	err = ioutil.WriteFile("gostacking.json", jsonData, 0644)
+    fmt.Println(string(jsonData))
+    // Write the JSON data to a file
+    err = ioutil.WriteFile("gostacking.json", jsonData, 0644)
+    if err != nil {
+        fmt.Println("Error writing to file:", err)
+        return
+    }
+}
+
+func LoadStacks() (StacksData, error) {
+	var data StacksData
+
+	jsonData, err := ioutil.ReadFile("gostacking.json")
 	if err != nil {
-		fmt.Println("Error writing to file:", err)
-		return
+		return data, err
 	}
 
-	fmt.Println("New stack created")
+	err = json.Unmarshal(jsonData, &data)
+	if err != nil {
+		return data, err
+	}
+
+	return data, nil
+}
+
+func CurrentStackName() string {
+    // read the json file called gostacking.json in the current directory
+    // return the currentStack value
+    data, err := LoadStacks()
+    if err != nil {
+        fmt.Println("Error loading JSON:", err)
+        return ""
+    }
+
+    return data.CurrentStack
+}
+
+func New(stackName string) {
+    stackData := StacksData{
+        CurrentStack: stackName,
+        Stacks: []Stack{
+            Stack{
+                Name: stackName,
+                Branches: []string{git.CurrentBranchName()},
+            },
+        },
+    }
+
+    WriteStacksFile(stackData)
+	fmt.Println("New stack created", stackName)
 }
 
 func Add(branchName string) {
