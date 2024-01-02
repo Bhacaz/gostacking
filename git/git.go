@@ -2,15 +2,12 @@ package git
 
 import (
     "fmt"
+    "os/exec"
     "gopkg.in/src-d/go-git.v4"
     "gopkg.in/src-d/go-git.v4/plumbing"
 )
 
 func CurrentBranchName() string {
-    fmt.Println("Git module currentBranchName called")
-    // read the current branch name from the git repo
-    // return the current branch name
-
     r, err := git.PlainOpen(".")
     if err != nil {
         fmt.Println(err)
@@ -50,18 +47,31 @@ func BranchExists(branchName string) bool {
 func SyncBranches(branches []string, checkoutBranchEnd string) {
     r, _ := git.PlainOpen(".")
     w, _ := r.Worktree()
-    fmt.Println("Git module syncBranches called")
+    // Return if contains unstaged changes
+    status, _ := w.Status()
+    if !status.IsClean() {
+        fmt.Println("Unstaged changes. Please commit or stash.")
+        return
+    }
+
     for i, branch := range branches {
+        fmt.Println("Branch:", branch)
+        err := w.Checkout(&git.CheckoutOptions{Branch: plumbing.NewBranchReferenceName(branch)})
+        err = w.Pull(&git.PullOptions{})
+        fmt.Println("Pulling", branch)
+        if err != nil {
+            fmt.Println(err, ". Continuing...")
+            break
+        }
+
+        // Nothing to merge on first branch
         if i == 0 {
             continue
         }
         toMerge := branches[i - 1]
         fmt.Println("Merging", toMerge, "into", branch)
-        err := w.Checkout(&git.CheckoutOptions{Branch: plumbing.NewBranchReferenceName(branch)})
-        err = w.Pull(&git.PullOptions{
-                    RemoteName: ".",
-                    ReferenceName: plumbing.NewBranchReferenceName(toMerge),
-                })
+        cmd := exec.Command("git", "pull", ".", toMerge)
+        err = cmd.Run()
         if err != nil {
             fmt.Println(err)
             break

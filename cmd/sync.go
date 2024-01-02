@@ -6,6 +6,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/gostacking/stack"
 )
 
 // syncCmd represents the sync command
@@ -13,6 +14,7 @@ var syncCmd = &cobra.Command{
 	Use:   "sync",
 	Short: "Merge all branch in a stack into the current branch.",
 	Run: func(cmd *cobra.Command, args []string) {
+	    stack.Sync()
 	},
 }
 
