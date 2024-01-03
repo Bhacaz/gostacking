@@ -2,8 +2,18 @@
 
 ## Commands
 
+Usage:
+`gostacking [command]`
 
-
+Available Commands:
+* `add`         Add a branch to the current stack. If no branch is given, add the current branch.
+* `delete`      Delete a gostacking.
+* `help`        Help about any command
+* `list`        List all stacks.
+* `new`         Create a new gostacking.
+* `status`      Get current stack.
+* `switch`      Change the current stack.
+* `sync`        Merge all branch in a stack into the current branch.
 
 ## Notes
 
