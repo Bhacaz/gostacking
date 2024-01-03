@@ -11,7 +11,11 @@ a `git merge` branch 1 into branch 2, branch 2 into branch 3, etc.
 
 ## Installation
 
-Download and 
+⚠️ Binary are not signed, you will need to allow it to run on your system. The tool is still in development.
+
+Go to [releases](https://github.com/Bhacaz/gostacking/releases/latest) and download the binary for your OS.
+
+Optionally, add the binary to your path.
 
 ## Commands
 
@@ -59,6 +63,7 @@ https://cobra.dev/
 ```bash
 ~/go/bin/cobra-cli add new
 go mod tidy
+go build -ldflags="-s -w" -o bin
 ```
 
 ## TODOs
