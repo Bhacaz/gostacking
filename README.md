@@ -1,12 +1,17 @@
 # gostacking
 
-Allow to simply links branches together to create a stack of branches. With the command `sync`,
+Allow to simply links branches together to create a stack of branches.
+
+This tool use **merges** instead of rebases like other tools to be less "destructive" and maybe more easy to understand
+what is going on. Down side are more commits and no way to change order with the tool.
+
+With the command `sync`,
 allow to update all branches to merge it one into the other. `sync` will do a `git pull` first, then
 a `git merge` branch 1 into branch 2, branch 2 into branch 3, etc.
 
 ## Installation
 
-todo
+Download and 
 
 ## Commands
 
