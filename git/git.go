@@ -65,7 +65,7 @@ func SyncBranches(branches []string, checkoutBranchEnd string) {
         err = w.Pull(&git.PullOptions{})
         fmt.Println("Pulling", branch)
         if err != nil {
-            fmt.Println(err, ". Continuing...")
+            fmt.Println(err, "Continuing...")
         }
 
         // Nothing to merge on first branch
@@ -93,7 +93,5 @@ func executeGitCommand(branch string, toMerge string) error {
         fmt.Println("Command output:", string(output))
         return err
     }
-    outputString := strings.TrimSpace(string(output))
-    fmt.Println("Git merge output:", outputString)
     return nil
 }
