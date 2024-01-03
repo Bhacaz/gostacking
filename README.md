@@ -1,5 +1,13 @@
 # gostacking
 
+Allow to simply links branches together to create a stack of branches. With the command `sync`,
+allow to update all branches to merge it one into the other. `sync` will do a `git pull` first, then
+a `git merge` branch 1 into branch 2, branch 2 into branch 3, etc.
+
+## Installation
+
+todo
+
 ## Commands
 
 Usage:
@@ -12,8 +20,32 @@ Available Commands:
 * `list`        List all stacks.
 * `new`         Create a new gostacking.
 * `status`      Get current stack.
-* `switch`      Change the current stack.
+* `switch`      Change the current stack. Using name or index.
 * `sync`        Merge all branch in a stack into the current branch.
+
+## Example
+
+```bash
+gostacking new my-stack
+gostacking add status
+# my-stack
+#  1. main
+gostacking add feature/1
+gostacking add feature/2
+gostacking status
+# my-stack
+#  1. main
+#  2. feature/1
+#  3. feature/2
+git checkout feature/1
+touch file1.txt
+git add file1.txt && git commit -m "Add file1.txt"
+gostacking sync
+# Merge main into feature/1
+# Merge feature/1 into feature/2
+git log --oneline -n 1 feature/2
+# gostacking - Merge feature/1 into feature/2
+```
 
 ## Notes
 
