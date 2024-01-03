@@ -8,6 +8,8 @@ import (
     "github.com/gostacking/git"
 )
 
+const stacksFile string = ".git/gostacking.json"
+
 type Stack struct {
 	Name     string   `json:"name"`
 	Branches []string `json:"branches"`
@@ -41,7 +43,7 @@ func WriteStacksFile(stackData StacksData) {
 
 //     fmt.Println(string(jsonData))
     // Write the JSON data to a file
-    err = ioutil.WriteFile("gostacking.json", jsonData, 0644)
+    err = ioutil.WriteFile(stacksFile, jsonData, 0644)
     if err != nil {
         fmt.Println("Error writing to file:", err)
         return
@@ -51,7 +53,7 @@ func WriteStacksFile(stackData StacksData) {
 func LoadStacks() (StacksData, error) {
 	var data StacksData
 
-	jsonData, err := ioutil.ReadFile("gostacking.json")
+	jsonData, err := ioutil.ReadFile(stacksFile)
 	if err != nil {
 		return data, err
 	}
