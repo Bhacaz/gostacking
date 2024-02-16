@@ -69,7 +69,7 @@ func SyncBranches(branches []string, checkoutBranchEnd string) {
         fmt.Println("Pulling", branch, "...")
         _, err = executeGitCommand("pull")
         if err != nil {
-            fmt.Println(err)
+//             fmt.Println(err)
         }
 
         // Nothing to merge on first branch
@@ -77,7 +77,7 @@ func SyncBranches(branches []string, checkoutBranchEnd string) {
             continue
         }
         toMerge := branches[i - 1]
-        fmt.Println("Merging", toMerge, "into", branch)
+        fmt.Println("Merging", toMerge, "->", branch)
         err = executeGitMerge(branch, toMerge)
         if err != nil {
             fmt.Println(err)
