@@ -31,6 +31,7 @@ Available Commands:
 * `status`      Get current stack.
 * `switch`      Change the current stack. Using name or index.
 * `sync`        Merge all branch in a stack into the current branch.
+* `checkout`    Checkout a branch from a stack.
 
 ## Example
 

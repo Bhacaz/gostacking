@@ -90,6 +90,13 @@ func SyncBranches(branches []string, checkoutBranchEnd string) {
     }
 }
 
+func Checkout(branchName string) {
+    _, err := executeGitCommand("checkout " + branchName)
+    if err != nil {
+        fmt.Println(err)
+    }
+}
+
 func gitClean() bool {
     output, err := executeGitCommand("status --porcelain")
     if err != nil {

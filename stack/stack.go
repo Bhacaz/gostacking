@@ -178,3 +178,23 @@ func Sync() {
     branches, _ := data.GetBranchesByName(data.CurrentStack)
     git.SyncBranches(branches, currentBranch)
 }
+
+func CheckoutByName(branchName string) {
+    if !git.BranchExists(branchName) {
+        fmt.Println("Branch", branchName, "does not exist")
+        return
+    }
+
+    git.Checkout(branchName)
+}
+
+func CheckoutByNumber(number int) {
+    data, _ := LoadStacks()
+    branches, _ := data.GetBranchesByName(data.CurrentStack)
+    if number < 1 || number > len(branches) {
+        fmt.Println("Invalid branch number")
+        return
+    }
+
+    git.Checkout(branches[number - 1])
+}
