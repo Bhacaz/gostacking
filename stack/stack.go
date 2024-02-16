@@ -6,6 +6,7 @@ import (
     "io/ioutil"
     "slices"
     "github.com/gostacking/git"
+    "github.com/gostacking/color"
 )
 
 const stacksFile string = ".git/gostacking.json"
@@ -86,9 +87,9 @@ func CurrentStackStatus() string {
     var displayBranches string
     branches, _ := data.GetBranchesByName(data.CurrentStack)
     for i, branch := range branches {
-        displayBranches += fmt.Sprintf("%d. " + branch + "\n", i + 1)
+        displayBranches += fmt.Sprintf("%d. " + color.Yellow(branch) + "\n", i + 1)
     }
-    return data.CurrentStack + "\n" + displayBranches
+    return "Current stack: " + color.Green(data.CurrentStack) + "\nBranches:\n" + displayBranches
 }
 
 func New(stackName string) {
@@ -124,9 +125,9 @@ func Add(branchName string) {
 
 func List() {
     data, _ := LoadStacks()
-    fmt.Println("Current stack:", data.CurrentStack)
+    fmt.Println("Current stack:", color.Green(data.CurrentStack))
     for i, stack := range data.Stacks {
-        fmt.Printf("%d. %s\n", i + 1, stack.Name)
+        fmt.Printf("%d. %s\n", i + 1, color.Yellow(stack.Name))
     }
 }
 
