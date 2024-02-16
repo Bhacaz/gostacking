@@ -48,13 +48,8 @@ func SyncBranches(branches []string, checkoutBranchEnd string) {
     r, _ := git.PlainOpen(".")
     w, _ := r.Worktree()
     // Return if contains unstaged changes
-    status, err := w.Status()
-    if err != nil {
-        fmt.Println(err)
-    }
-    if !status.IsClean() {
-        fmt.Println("Unstaged changes. Please commit or stash.")
-        fmt.Println(status)
+    if !gitClean() {
+        fmt.Println("Unstaged changes. Please commit or stash them.")
         return
     }
 
@@ -73,24 +68,44 @@ func SyncBranches(branches []string, checkoutBranchEnd string) {
         }
         toMerge := branches[i - 1]
         fmt.Println("Merging", toMerge, "into", branch)
-        err = executeGitCommand(branch, toMerge)
+        err = executeGitMerge(branch, toMerge)
         if err != nil {
             fmt.Println(err)
             break
         }
     }
-    err = w.Checkout(&git.CheckoutOptions{Branch: plumbing.NewBranchReferenceName(checkoutBranchEnd)})
+    err := w.Checkout(&git.CheckoutOptions{Branch: plumbing.NewBranchReferenceName(checkoutBranchEnd)})
     if err != nil {
         fmt.Println(err)
     }
 }
 
-func executeGitCommand(branch string, toMerge string) error {
-    cmd := exec.Command("git", "merge", toMerge, "--no-squash", "--commit", "-m", "\"gostacking - Merge " + toMerge + " into " + branch + "\"")
+func gitClean() bool {
+    output, err := executeGitCommand("status --porcelain")
+    if err != nil {
+        fmt.Println(err)
+        return false
+    }
+    return len(output) == 0
+}
+
+func executeGitMerge(currentBranch string, toMerge string) error {
+    cmd := exec.Command("git", "merge", toMerge, "--no-squash", "--commit", "-m", "\"gostacking - Merge " + toMerge + " into " + currentBranch + "\"")
     output, err := cmd.CombinedOutput()
     if err != nil {
         fmt.Println("Command output:", string(output))
         return err
     }
     return nil
+}
+
+func executeGitCommand(command string) (string, error) {
+    cmd := exec.Command("git ", command)
+    output, err := cmd.CombinedOutput()
+    if err != nil {
+        fmt.Println("Command err:", string(output))
+        return "", err
+    }
+    fmt.Println("Command output:", string(output))
+    return string(output), nil
 }
