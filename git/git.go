@@ -70,7 +70,6 @@ func SyncBranches(branches []string, checkoutBranchEnd string) {
         _, err = executeGitCommand("pull")
         if err != nil {
             fmt.Println(err)
-            break
         }
 
         // Nothing to merge on first branch
