@@ -114,7 +114,7 @@ func executeGitCommand(command string) (string, error) {
     cmd := exec.Command("git", cmdArgs...)
     output, err := cmd.CombinedOutput()
     if err != nil {
-        fmt.Println("Command err:", string(output))
+//         fmt.Println("Command err:", string(output))
         return "", err
     }
     return string(output), nil
