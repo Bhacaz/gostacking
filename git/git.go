@@ -55,7 +55,7 @@ func SyncBranches(branches []string, checkoutBranchEnd string) {
     }
 
     fmt.Println("Fetching...")
-    err := executeGitCommand("fetch")
+    _, err := executeGitCommand("fetch")
     if err != nil {
         fmt.Println(err)
         return
@@ -82,7 +82,7 @@ func SyncBranches(branches []string, checkoutBranchEnd string) {
             break
         }
     }
-    err := w.Checkout(&git.CheckoutOptions{Branch: plumbing.NewBranchReferenceName(checkoutBranchEnd)})
+    err = w.Checkout(&git.CheckoutOptions{Branch: plumbing.NewBranchReferenceName(checkoutBranchEnd)})
     if err != nil {
         fmt.Println(err)
     }
