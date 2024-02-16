@@ -54,7 +54,7 @@ func SyncBranches(branches []string, checkoutBranchEnd string) {
         return
     }
 
-    fmt.Println("Fetching...")
+    fmt.Println("Fetching...\n")
     _, err := executeGitCommand("fetch")
     if err != nil {
         fmt.Println(err)
@@ -62,14 +62,14 @@ func SyncBranches(branches []string, checkoutBranchEnd string) {
     }
 
     for i, branch := range branches {
-        fmt.Println("Checkout to ", branch)
+        fmt.Println("Checkout to", branch)
         _, err := executeGitCommand("checkout " + branch)
         if err != nil {
             fmt.Println(err)
             break
         }
 
-        fmt.Println("Pulling ", branch)
+        fmt.Println("Pulling", branch, "...")
         _, err = executeGitCommand("pull")
         if err != nil {
             fmt.Println(err)
