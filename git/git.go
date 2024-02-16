@@ -62,12 +62,18 @@ func SyncBranches(branches []string, checkoutBranchEnd string) {
     }
 
     for i, branch := range branches {
-        fmt.Println("Branch:", branch)
-        err := w.Checkout(&git.CheckoutOptions{Branch: plumbing.NewBranchReferenceName(branch)})
-        err = w.Pull(&git.PullOptions{})
-        fmt.Println("Pulling", branch)
+        fmt.Println("Checkout to ", branch)
+        _, err := executeGitCommand("checkout " + branch)
         if err != nil {
-            fmt.Println(err, "Continuing...")
+            fmt.Println(err)
+            break
+        }
+
+        fmt.Println("Pulling ", branch)
+        _, err = executeGitCommand("pull")
+        if err != nil {
+            fmt.Println(err)
+            break
         }
 
         // Nothing to merge on first branch
@@ -115,6 +121,6 @@ func executeGitCommand(command string) (string, error) {
         fmt.Println("Command err:", string(output))
         return "", err
     }
-    fmt.Println("Command output:", string(output))
+//     fmt.Println("Command output:", string(output))
     return string(output), nil
 }
