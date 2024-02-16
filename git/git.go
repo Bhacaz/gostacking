@@ -3,6 +3,7 @@ package git
 import (
     "fmt"
     "os/exec"
+    "strings"
     "gopkg.in/src-d/go-git.v4"
     "gopkg.in/src-d/go-git.v4/plumbing"
 )
@@ -53,6 +54,13 @@ func SyncBranches(branches []string, checkoutBranchEnd string) {
         return
     }
 
+    fmt.Println("Fetching...")
+    err := executeGitCommand("fetch")
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
+
     for i, branch := range branches {
         fmt.Println("Branch:", branch)
         err := w.Checkout(&git.CheckoutOptions{Branch: plumbing.NewBranchReferenceName(branch)})
@@ -100,7 +108,8 @@ func executeGitMerge(currentBranch string, toMerge string) error {
 }
 
 func executeGitCommand(command string) (string, error) {
-    cmd := exec.Command("git ", command)
+    cmdArgs := strings.Fields(command)
+    cmd := exec.Command("git", cmdArgs...)
     output, err := cmd.CombinedOutput()
     if err != nil {
         fmt.Println("Command err:", string(output))
