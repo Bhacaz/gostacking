@@ -107,7 +107,7 @@ func gitClean() bool {
 }
 
 func executeGitMerge(currentBranch string, toMerge string) error {
-    cmd := exec.Command("git", "merge", toMerge, "--no-squash", "--commit", "-m", "gostacking - Merge " + toMerge + " into " + currentBranch)
+    cmd := exec.Command("git", "merge", toMerge, "--no-squash", "--commit", "-m", "Merge branch" + toMerge + " into " + currentBranch + "(gostacking)")
     output, err := cmd.CombinedOutput()
     if err != nil {
         fmt.Println("Error merging:", string(output))
