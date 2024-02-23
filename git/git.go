@@ -74,6 +74,9 @@ func SyncBranches(branches []string, checkoutBranchEnd string, push bool) {
 
         // Nothing to merge on first branch
         if i == 0 {
+            if push {
+                pushBranch(branch)
+            }
             continue
         }
         toMerge := branches[i - 1]
@@ -84,18 +87,21 @@ func SyncBranches(branches []string, checkoutBranchEnd string, push bool) {
             break
         }
         if push {
-            fmt.Println("Pushing", branch, "...")
-            _, err = executeGitCommand("push")
-            if err != nil {
-                fmt.Println(err)
-                break
-            }
+            pushBranch(branch)
         }
     }
     _, err = executeGitCommand("checkout " + checkoutBranchEnd)
     if err != nil {
         fmt.Println(err)
     }
+}
+
+func pushBranch(branchName string) {
+   fmt.Println("Pushing", branch, "...")
+   _, err = executeGitCommand("push")
+   if err != nil {
+       fmt.Println(err)
+   }
 }
 
 func Checkout(branchName string) {
