@@ -32,6 +32,7 @@ Available Commands:
 * `switch`      Change the current stack. Using name or index.
 * `sync`        Merge all branch in a stack into the current branch.
 * `checkout`    Checkout a branch from a stack.
+* `remove`      Remove a branch from the current stack. (Branch name or number)
 
 ## Example
 
