@@ -80,5 +80,3 @@ go build -ldflags="-s -w" -o bin
 - [x] Sync all branch in a stack (merge each one into the other)
 - [x] Add colors
 - [ ] Change way prints works, stack.go should return string and cmd should print it
-
-# TMP CHANGE
