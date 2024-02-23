@@ -14,7 +14,8 @@ var syncCmd = &cobra.Command{
 	Use:   "sync",
 	Short: "Merge all branch in a stack into the current branch.",
 	Run: func(cmd *cobra.Command, args []string) {
-	    stack.Sync()
+	    pushValue, _ := cmd.Flags().GetBool("push")
+	    stack.Sync(pushValue)
 	},
 }
 
@@ -30,4 +31,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// syncCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	syncCmd.Flags().BoolP("push", "p", false, "Push commits after syncing.")
 }
