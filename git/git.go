@@ -44,7 +44,7 @@ func BranchExists(branchName string) bool {
     return false
 }
 
-func SyncBranches(branches []string, checkoutBranchEnd string) {
+func SyncBranches(branches []string, checkoutBranchEnd string, push bool) {
     // Return if contains unstaged changes
     if !gitClean() {
         fmt.Println("Unstaged changes. Please commit or stash them.")
@@ -74,6 +74,9 @@ func SyncBranches(branches []string, checkoutBranchEnd string) {
 
         // Nothing to merge on first branch
         if i == 0 {
+            if push {
+                pushBranch(branch)
+            }
             continue
         }
         toMerge := branches[i - 1]
@@ -83,11 +86,22 @@ func SyncBranches(branches []string, checkoutBranchEnd string) {
             fmt.Println(err)
             break
         }
+        if push {
+            pushBranch(branch)
+        }
     }
     _, err = executeGitCommand("checkout " + checkoutBranchEnd)
     if err != nil {
         fmt.Println(err)
     }
+}
+
+func pushBranch(branchName string) {
+   fmt.Println("Pushing", branchName, "...")
+   _, err := executeGitCommand("push")
+   if err != nil {
+       fmt.Println(err)
+   }
 }
 
 func Checkout(branchName string) {

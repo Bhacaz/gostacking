@@ -208,11 +208,11 @@ func Delete(stackName string) {
     fmt.Println(CurrentStackStatus())
 }
 
-func Sync() {
+func Sync(push bool) {
     data, _ := LoadStacks()
     currentBranch := git.CurrentBranchName()
     branches, _ := data.GetBranchesByName(data.CurrentStack)
-    git.SyncBranches(branches, currentBranch)
+    git.SyncBranches(branches, currentBranch, push)
 }
 
 func CheckoutByName(branchName string) {
