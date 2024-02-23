@@ -97,8 +97,8 @@ func SyncBranches(branches []string, checkoutBranchEnd string, push bool) {
 }
 
 func pushBranch(branchName string) {
-   fmt.Println("Pushing", branch, "...")
-   _, err = executeGitCommand("push")
+   fmt.Println("Pushing", branchName, "...")
+   _, err := executeGitCommand("push")
    if err != nil {
        fmt.Println(err)
    }
