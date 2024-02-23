@@ -148,6 +148,40 @@ func SwitchByNumber(number int) {
     fmt.Println("Switched to stack", stack.Name)
 }
 
+func RemoveByName(branchName string) {
+    data, _ := LoadStacks()
+    stack, _ := data.GetStackByName(data.CurrentStack)
+    var filteredBranches []string
+    for _, branch := range stack.Branches {
+        if branch != branchName {
+            filteredBranches = append(filteredBranches, branch)
+        }
+    }
+
+    if len(filteredBranches) == len(stack.Branches) {
+        fmt.Println("Branch", branchName, "does not exist")
+        return
+    }
+
+    stack.Branches = filteredBranches
+    WriteStacksFile(data)
+    fmt.Println("Branch", color.Yellow(branchName), "removed from stack", color.Green(data.CurrentStack))
+}
+
+func RemoveByNumber(number int) {
+    data, _ := LoadStacks()
+    stack, _ := data.GetStackByName(data.CurrentStack)
+    if number < 1 || number > len(stack.Branches) {
+        fmt.Println("Invalid branch number")
+        return
+    }
+
+    branchName := stack.Branches[number - 1]
+    stack.Branches = append(stack.Branches[:number - 1], stack.Branches[number:]...)
+    WriteStacksFile(data)
+    fmt.Println("Branch", color.Yellow(branchName), "removed from stack", color.Green(data.CurrentStack))
+}
+
 func Delete(stackName string) {
     data, _ := LoadStacks()
     var filteredStacks []Stack
