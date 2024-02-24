@@ -6,7 +6,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/Bhacaz/gostacking/stack"
+	"github.com/Bhacaz/gostacking/internal/stack"
 )
 
 // deleteCmd represents the delete command

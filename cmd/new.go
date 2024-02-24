@@ -7,7 +7,7 @@ package cmd
 import (
 // 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/Bhacaz/gostacking/stack"
+	"github.com/Bhacaz/gostacking/internal/stack"
 )
 
 // newCmd represents the new command
