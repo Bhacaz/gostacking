@@ -6,7 +6,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/gostacking/stack"
+	"github.com/Bhacaz/gostacking/internal/stack"
 )
 
 // addCmd represents the add command

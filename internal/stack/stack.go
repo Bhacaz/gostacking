@@ -5,8 +5,8 @@ import (
     "encoding/json"
     "io/ioutil"
     "slices"
-    "github.com/gostacking/git"
-    "github.com/gostacking/color"
+    "github.com/Bhacaz/gostacking/internal/git"
+    "github.com/Bhacaz/gostacking/internal/color"
 )
 
 const stacksFile string = ".git/gostacking.json"
