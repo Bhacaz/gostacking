@@ -6,7 +6,7 @@ package cmd
 
 import (
     "strconv"
-    "github.com/gostacking/stack"
+    "github.com/Bhacaz/gostacking/stack"
 	"github.com/spf13/cobra"
 )
 

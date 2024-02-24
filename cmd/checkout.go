@@ -7,7 +7,7 @@ package cmd
 import (
     "strconv"
 	"github.com/spf13/cobra"
-    "github.com/gostacking/stack"
+    "github.com/Bhacaz/gostacking/stack"
 )
 
 // checkoutCmd represents the checkout command

@@ -7,7 +7,7 @@ package cmd
 import (
     "strconv"
 	"github.com/spf13/cobra"
-	"github.com/gostacking/stack"
+	"github.com/Bhacaz/gostacking/stack"
 )
 
 // switchCmd represents the switch command

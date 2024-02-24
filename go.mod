@@ -1,4 +1,4 @@
-module github.com/gostacking
+module github.com/Bhacaz/gostacking
 
 go 1.21.5
 
