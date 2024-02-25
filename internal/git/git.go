@@ -51,7 +51,7 @@ func SyncBranches(branches []string, checkoutBranchEnd string, push bool) {
         return
     }
 
-    fmt.Println("Fetching...\n")
+    fmt.Println("Fetching...")
     _, err := executeGitCommand("fetch")
     if err != nil {
         fmt.Println(err)
