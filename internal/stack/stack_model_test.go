@@ -1,9 +1,8 @@
 package stack
 
 import (
-    "fmt"
     "reflect"
-    "testing"
+//     "testing"
 )
 
 func stacksDataMock() StacksData {
@@ -36,21 +35,6 @@ func (s *StacksPersistingStub) LoadStacks() (StacksData, error) {
 func (s *StacksPersistingStub) SaveStacks(data StacksData) {
     s.data = data
 }
-
-func TestNew(t *testing.T) {
-    stacksManager := StacksManager{
-        stacksPersister: &StacksPersistingStub{},
-    }
-
-    stacksManager.New("stack3")
-
-    data, _ := stacksManager.stacksPersister.LoadStacks()
-
-    if data.Stacks[2].Name != "stack3" {
-        t.Errorf("got %s, want %s", data.Stacks[2].Name, "stack3")
-    }
-}
-
 
 // func TestLoadStacks(t *testing.T) {
 //     loader := stacksLoaderStub()

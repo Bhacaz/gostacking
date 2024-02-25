@@ -1,11 +1,15 @@
 package stack
 
 import (
-    "fmt"
+    "github.com/Bhacaz/gostacking/internal/color"
     "github.com/Bhacaz/gostacking/internal/git"
 )
 
-func (sm StacksManager) New(stackName string) {
+type StacksManager struct {
+    stacksPersister StacksPersisting
+}
+
+func (sm StacksManager) New(stackName string) string {
     newStack := Stack{
                     Name: stackName,
                     Branches: []string{git.CurrentBranchName()},
@@ -16,7 +20,7 @@ func (sm StacksManager) New(stackName string) {
     data.Stacks = append(data.Stacks, newStack)
 
     sm.stacksPersister.SaveStacks(data)
-	fmt.Println("New stack created", stackName)
+	return "New stack created " + color.Green(stackName)
 }
 
 //

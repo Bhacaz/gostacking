@@ -33,10 +33,6 @@ func (s StacksPersistingFile) SaveStacks(data StacksData) {
     SaveStacks(data)
 }
 
-type StacksManager struct {
-    stacksPersister StacksPersisting
-}
-
 func LoadStacksFromFile() (StacksData, error) {
     var data StacksData
 
