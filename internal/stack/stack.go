@@ -7,12 +7,13 @@ import (
 
 type StacksManager struct {
     stacksPersister StacksPersisting
+    gitCmd git.GitCommands
 }
 
 func (sm StacksManager) New(stackName string) string {
     newStack := Stack{
                     Name: stackName,
-                    Branches: []string{git.CurrentBranchName()},
+                    Branches: []string{sm.gitCmd.CurrentBranchName()},
                 }
 
     data, _ := sm.stacksPersister.LoadStacks()

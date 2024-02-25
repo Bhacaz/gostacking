@@ -3,11 +3,14 @@ package stack
 import (
     "testing"
     "github.com/Bhacaz/gostacking/internal/color"
+    "github.com/Bhacaz/gostacking/internal/git"
     )
 
+// TODO replace GitCmd with a mock
 func TestNew(t *testing.T) {
     stacksManager := StacksManager{
         stacksPersister: &StacksPersistingStub{},
+        gitCmd: git.GitCmd(),
     }
 
     result := stacksManager.New("stack3")

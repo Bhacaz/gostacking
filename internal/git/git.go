@@ -4,133 +4,151 @@ import (
     "fmt"
     "os/exec"
     "strings"
-    "gopkg.in/src-d/go-git.v4"
 )
 
-func CurrentBranchName() string {
-    currentBranch, err := executeGitCommand("rev-parse --abbrev-ref HEAD")
-    if err != nil {
-        fmt.Println(err)
-    }
-    return currentBranch
+type GitExecutor interface {
+    ExecuteGitCommand(command string) (string, error)
 }
 
-func BranchExists(branchName string) bool {
-    r, err := git.PlainOpen(".")
-    if err != nil {
-        fmt.Println(err)
-    }
+type GitExecutorExec struct {}
 
-    refs, err := r.Branches()
-    if err != nil {
-        fmt.Println(err)
-    }
-
-    for {
-        ref, err := refs.Next()
-        if err != nil {
-            break
-        }
-        if ref.Name().Short() == branchName {
-            return true
-        }
-    }
-    return false
-}
-
-func SyncBranches(branches []string, checkoutBranchEnd string, push bool) {
-    // Return if contains unstaged changes
-    if !gitClean() {
-        fmt.Println("Unstaged changes. Please commit or stash them.")
-        return
-    }
-
-    fmt.Println("Fetching...")
-    _, err := executeGitCommand("fetch")
-    if err != nil {
-        fmt.Println(err)
-        return
-    }
-
-    for i, branch := range branches {
-        fmt.Println("Checkout to", branch)
-        _, err := executeGitCommand("checkout " + branch)
-        if err != nil {
-            fmt.Println(err)
-            break
-        }
-
-        fmt.Println("Pulling", branch, "...")
-        _, err = executeGitCommand("pull")
-        if err != nil {
-//             fmt.Println(err)
-        }
-
-        // Nothing to merge on first branch
-        if i == 0 {
-            if push {
-                pushBranch(branch)
-            }
-            continue
-        }
-        toMerge := branches[i - 1]
-        fmt.Println("Merging", toMerge, "->", branch)
-        err = executeGitMerge(branch, toMerge)
-        if err != nil {
-            fmt.Println(err)
-            break
-        }
-        if push {
-            pushBranch(branch)
-        }
-    }
-    _, err = executeGitCommand("checkout " + checkoutBranchEnd)
-    if err != nil {
-        fmt.Println(err)
-    }
-}
-
-func pushBranch(branchName string) {
-   fmt.Println("Pushing", branchName, "...")
-   _, err := executeGitCommand("push")
-   if err != nil {
-       fmt.Println(err)
-   }
-}
-
-func Checkout(branchName string) {
-    _, err := executeGitCommand("checkout " + branchName)
-    if err != nil {
-        fmt.Println(err)
-    }
-}
-
-func gitClean() bool {
-    output, err := executeGitCommand("status --porcelain")
-    if err != nil {
-        fmt.Println(err)
-        return false
-    }
-    return len(output) == 0
-}
-
-func executeGitMerge(currentBranch string, toMerge string) error {
-    cmd := exec.Command("git", "merge", toMerge, "--no-squash", "--commit", "-m", "Merge branch " + toMerge + " into " + currentBranch + " (gostacking)")
-    output, err := cmd.CombinedOutput()
-    if err != nil {
-        fmt.Println("Error merging:", string(output))
-        return err
-    }
-    return nil
-}
-
-func executeGitCommand(command string) (string, error) {
+func (gee GitExecutorExec) ExecuteGitCommand(command string) (string, error) {
     cmdArgs := strings.Fields(command)
     cmd := exec.Command("git", cmdArgs...)
     output, err := cmd.CombinedOutput()
+    result := strings.TrimSuffix(string(output), "\n")
+
     if err != nil {
-//         fmt.Println("Command err:", string(output))
+        fmt.Println("Git command err:", result)
         return "", err
     }
-    return string(output), nil
+
+    return result, nil
 }
+
+type GitCommands struct {
+    executor GitExecutor
+}
+
+func GitCmd() GitCommands {
+    return GitCommands{
+        executor: GitExecutorExec{},
+    }
+}
+
+func (gc GitCommands) CurrentBranchName() (string, error) {
+    currentBranch, err := gc.executor.ExecuteGitCommand("rev-parse --abbrev-ref HEAD")
+    if err != nil {
+        return "", err
+    }
+    return currentBranch, nil
+}
+//
+// func BranchExists(branchName string) bool {
+//     r, err := git.PlainOpen(".")
+//     if err != nil {
+//         fmt.Println(err)
+//     }
+//
+//     refs, err := r.Branches()
+//     if err != nil {
+//         fmt.Println(err)
+//     }
+//
+//     for {
+//         ref, err := refs.Next()
+//         if err != nil {
+//             break
+//         }
+//         if ref.Name().Short() == branchName {
+//             return true
+//         }
+//     }
+//     return false
+// }
+//
+// func SyncBranches(branches []string, checkoutBranchEnd string, push bool) {
+//     // Return if contains unstaged changes
+//     if !gitClean() {
+//         fmt.Println("Unstaged changes. Please commit or stash them.")
+//         return
+//     }
+//
+//     fmt.Println("Fetching...")
+//     _, err := executeGitCommand("fetch")
+//     if err != nil {
+//         fmt.Println(err)
+//         return
+//     }
+//
+//     for i, branch := range branches {
+//         fmt.Println("Checkout to", branch)
+//         _, err := executeGitCommand("checkout " + branch)
+//         if err != nil {
+//             fmt.Println(err)
+//             break
+//         }
+//
+//         fmt.Println("Pulling", branch, "...")
+//         _, err = executeGitCommand("pull")
+//         if err != nil {
+// //             fmt.Println(err)
+//         }
+//
+//         // Nothing to merge on first branch
+//         if i == 0 {
+//             if push {
+//                 pushBranch(branch)
+//             }
+//             continue
+//         }
+//         toMerge := branches[i - 1]
+//         fmt.Println("Merging", toMerge, "->", branch)
+//         err = executeGitMerge(branch, toMerge)
+//         if err != nil {
+//             fmt.Println(err)
+//             break
+//         }
+//         if push {
+//             pushBranch(branch)
+//         }
+//     }
+//     _, err = executeGitCommand("checkout " + checkoutBranchEnd)
+//     if err != nil {
+//         fmt.Println(err)
+//     }
+// }
+//
+// func pushBranch(branchName string) {
+//    fmt.Println("Pushing", branchName, "...")
+//    _, err := executeGitCommand("push")
+//    if err != nil {
+//        fmt.Println(err)
+//    }
+// }
+//
+// func Checkout(branchName string) {
+//     _, err := executeGitCommand("checkout " + branchName)
+//     if err != nil {
+//         fmt.Println(err)
+//     }
+// }
+//
+// func gitClean() bool {
+//     output, err := executeGitCommand("status --porcelain")
+//     if err != nil {
+//         fmt.Println(err)
+//         return false
+//     }
+//     return len(output) == 0
+// }
+//
+// func executeGitMerge(currentBranch string, toMerge string) error {
+//     cmd := exec.Command("git", "merge", toMerge, "--no-squash", "--commit", "-m", "Merge branch " + toMerge + " into " + currentBranch + " (gostacking)")
+//     output, err := cmd.CombinedOutput()
+//     if err != nil {
+//         fmt.Println("Error merging:", string(output))
+//         return err
+//     }
+//     return nil
+// }
