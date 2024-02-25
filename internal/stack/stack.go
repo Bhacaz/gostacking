@@ -1,13 +1,24 @@
 package stack
 
-// import (
-//     "fmt"
-//     "encoding/json"
-//     "io/ioutil"
-//     "slices"
-//     "github.com/Bhacaz/gostacking/internal/git"
-//     "github.com/Bhacaz/gostacking/internal/color"
-// )
+import (
+    "fmt"
+    "github.com/Bhacaz/gostacking/internal/git"
+)
+
+func (sm StacksManager) New(stackName string) {
+    newStack := Stack{
+                    Name: stackName,
+                    Branches: []string{git.CurrentBranchName()},
+                }
+
+    data, _ := sm.stacksPersister.LoadStacks()
+    data.CurrentStack = stackName
+    data.Stacks = append(data.Stacks, newStack)
+
+    sm.stacksPersister.SaveStacks(data)
+	fmt.Println("New stack created", stackName)
+}
+
 //
 // func CurrentStackName() string {
 //     data, err := LoadStacks()

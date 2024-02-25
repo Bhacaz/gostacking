@@ -8,17 +8,11 @@ import (
 )
 
 func CurrentBranchName() string {
-    r, err := git.PlainOpen(".")
+    currentBranch, err := executeGitCommand("rev-parse --abbrev-ref HEAD")
     if err != nil {
         fmt.Println(err)
     }
-
-    ref, err := r.Head()
-    if err != nil {
-        fmt.Println(err)
-    }
-
-    return ref.Name().Short()
+    return currentBranch
 }
 
 func BranchExists(branchName string) bool {
