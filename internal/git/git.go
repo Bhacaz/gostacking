@@ -43,29 +43,12 @@ func (gc GitCommands) CurrentBranchName() (string, error) {
     }
     return currentBranch, nil
 }
-//
-// func BranchExists(branchName string) bool {
-//     r, err := git.PlainOpen(".")
-//     if err != nil {
-//         fmt.Println(err)
-//     }
-//
-//     refs, err := r.Branches()
-//     if err != nil {
-//         fmt.Println(err)
-//     }
-//
-//     for {
-//         ref, err := refs.Next()
-//         if err != nil {
-//             break
-//         }
-//         if ref.Name().Short() == branchName {
-//             return true
-//         }
-//     }
-//     return false
-// }
+
+func (gc GitCommands) BranchExists(branchName string) bool {
+    _, err := gc.executor.ExecuteGitCommand("rev-parse --verify --quiet \"refs/heads/" + branchName + "\"")
+    return err == nil
+}
+
 //
 // func SyncBranches(branches []string, checkoutBranchEnd string, push bool) {
 //     // Return if contains unstaged changes
