@@ -1,52 +1,51 @@
 package git
 
 import (
-    "fmt"
-    "os/exec"
-    "strings"
+	"os/exec"
+	"strings"
 )
 
-type GitExecutor interface {
-    ExecuteGitCommand(command string) (string, error)
+type InterfaceGitExecutor interface {
+	ExecCommand(command string) (string, error)
 }
 
-type GitExecutorExec struct {}
+type Executor struct{}
 
-func (gee GitExecutorExec) ExecuteGitCommand(command string) (string, error) {
-    cmdArgs := strings.Fields(command)
-    cmd := exec.Command("git", cmdArgs...)
-    output, err := cmd.CombinedOutput()
-    result := strings.TrimSuffix(string(output), "\n")
+func (gee Executor) ExecCommand(command string) (string, error) {
+	cmdArgs := strings.Fields(command)
+	cmd := exec.Command("git", cmdArgs...)
+	output, err := cmd.CombinedOutput()
+	result := strings.TrimSuffix(string(output), "\n")
 
-    if err != nil {
-        fmt.Println("Git command err:", result)
-        return "", err
-    }
+	if err != nil {
+		//fmt.Println("Git command err:", result)
+		return "", err
+	}
 
-    return result, nil
+	return result, nil
 }
 
-type GitCommands struct {
-    executor GitExecutor
+type Commands struct {
+	executor InterfaceGitExecutor
 }
 
-func GitCmd() GitCommands {
-    return GitCommands{
-        executor: GitExecutorExec{},
-    }
+func Cmd() Commands {
+	return Commands{
+		executor: Executor{},
+	}
 }
 
-func (gc GitCommands) CurrentBranchName() (string, error) {
-    currentBranch, err := gc.executor.ExecuteGitCommand("rev-parse --abbrev-ref HEAD")
-    if err != nil {
-        return "", err
-    }
-    return currentBranch, nil
+func (gc Commands) CurrentBranchName() (string, error) {
+	currentBranch, err := gc.executor.ExecCommand("rev-parse --abbrev-ref HEAD")
+	if err != nil {
+		return "", err
+	}
+	return currentBranch, nil
 }
 
-func (gc GitCommands) BranchExists(branchName string) bool {
-    _, err := gc.executor.ExecuteGitCommand("rev-parse --verify --quiet \"refs/heads/" + branchName + "\"")
-    return err == nil
+func (gc Commands) BranchExists(branchName string) bool {
+	_, err := gc.executor.ExecCommand("rev-parse --verify --quiet \"refs/heads/" + branchName + "\"")
+	return err == nil
 }
 
 //
