@@ -1,13 +1,12 @@
 /*
 Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
-    "fmt"
-	"github.com/spf13/cobra"
+	"fmt"
 	"github.com/Bhacaz/gostacking/internal/stack"
+	"github.com/spf13/cobra"
 )
 
 // statusCmd represents the status command
@@ -15,7 +14,7 @@ var statusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "Get current stack.",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(stack.CurrentStackStatus())
+		fmt.Println(stack.Manager().CurrentStackStatus())
 	},
 }
 

@@ -1,12 +1,11 @@
 /*
 Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"github.com/Bhacaz/gostacking/internal/stack"
+	"github.com/spf13/cobra"
 )
 
 // deleteCmd represents the delete command
@@ -14,7 +13,7 @@ var deleteCmd = &cobra.Command{
 	Use:   "delete [stack]",
 	Short: "Delete a gostacking.",
 	Run: func(cmd *cobra.Command, args []string) {
-		stack.Delete(args[0])
+		stack.Manager().Delete(args[0])
 	},
 }
 

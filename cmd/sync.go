@@ -1,12 +1,11 @@
 /*
 Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"github.com/Bhacaz/gostacking/internal/stack"
+	"github.com/spf13/cobra"
 )
 
 // syncCmd represents the sync command
@@ -14,8 +13,8 @@ var syncCmd = &cobra.Command{
 	Use:   "sync",
 	Short: "Merge all branch in a stack into the current branch.",
 	Run: func(cmd *cobra.Command, args []string) {
-	    pushValue, _ := cmd.Flags().GetBool("push")
-	    stack.Sync(pushValue)
+		pushValue, _ := cmd.Flags().GetBool("push")
+		stack.Manager().Sync(pushValue)
 	},
 }
 

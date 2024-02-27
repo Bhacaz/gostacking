@@ -1,26 +1,25 @@
 /*
 Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
-    "strconv"
-	"github.com/spf13/cobra"
 	"github.com/Bhacaz/gostacking/internal/stack"
+	"github.com/spf13/cobra"
+	"strconv"
 )
 
 // switchCmd represents the switch command
 var switchCmd = &cobra.Command{
 	Use:   "switch [stack name or number]",
 	Short: "Change the current stack.",
-	Args: cobra.ExactArgs(1),
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-        if n, err := strconv.Atoi(args[0]); err == nil {
-            stack.SwitchByNumber(n)
-        } else {
-            stack.SwitchByName(args[0])
-        }
+		if n, err := strconv.Atoi(args[0]); err == nil {
+			stack.Manager().SwitchByNumber(n)
+		} else {
+			stack.Manager().SwitchByName(args[0])
+		}
 	},
 }
 

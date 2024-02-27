@@ -1,23 +1,22 @@
 /*
 Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
-// 	"fmt"
-	"github.com/spf13/cobra"
 	"github.com/Bhacaz/gostacking/internal/stack"
+	// 	"fmt"
+	"github.com/spf13/cobra"
 )
 
 // newCmd represents the new command
 var newCmd = &cobra.Command{
 	Use:   "new [name]",
 	Short: "Create a new gostacking.",
-	Long: `Create a a new gostacking by giving it a name.`,
-	Args: cobra.MinimumNArgs(1),
+	Long:  `Create a a new gostacking by giving it a name.`,
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		stack.New(args[0])
+		stack.Manager().CreateStack(args[0])
 	},
 }
 

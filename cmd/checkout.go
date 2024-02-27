@@ -1,13 +1,12 @@
 /*
 Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
-    "strconv"
+	"github.com/Bhacaz/gostacking/internal/stack"
 	"github.com/spf13/cobra"
-    "github.com/Bhacaz/gostacking/internal/stack"
+	"strconv"
 )
 
 // checkoutCmd represents the checkout command
@@ -16,10 +15,10 @@ var checkoutCmd = &cobra.Command{
 	Short: "Checkout a branch from a stack.",
 	Run: func(cmd *cobra.Command, args []string) {
 		if n, err := strconv.Atoi(args[0]); err == nil {
-            stack.CheckoutByNumber(n)
-        } else {
-            stack.CheckoutByName(args[0])
-        }
+			stack.Manager().CheckoutByNumber(n)
+		} else {
+			stack.Manager().CheckoutByName(args[0])
+		}
 	},
 }
 
