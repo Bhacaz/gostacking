@@ -26,6 +26,10 @@ func (g gitCommandsStub) SyncBranches(branches []string, checkoutBranchEnd strin
 	// Do nothing
 }
 
+func (g gitCommandsStub) BranchDiff(baseBranch string, branch string) bool {
+	return false
+}
+
 func TestCreateStack(t *testing.T) {
 	stacksManager := StacksManager{
 		stacksPersister: &StacksPersistingStub{},

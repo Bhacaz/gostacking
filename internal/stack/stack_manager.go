@@ -52,10 +52,18 @@ func (sm StacksManager) CurrentStackStatus() string {
 
 	var displayBranches string
 	branches, _ := data.GetBranchesByName(data.CurrentStack)
+	var previousBranch string
 	for i, branch := range branches {
 		// Maybe someday it will be nice to add
 		// git log --pretty=format:'%s - %Cred%h%Creset %C(bold blue)%an%Creset %Cgreen%cr%Creset' -n 1 master
-		displayBranches += fmt.Sprintf("%d. "+color.Yellow(branch)+"\n", i+1)
+		displayBranches += fmt.Sprintf("%d. "+color.Yellow(branch), i+1)
+		if i > 0 && previousBranch != branch {
+			hasDiff := sm.gitCommands.BranchDiff(previousBranch, branch)
+			if hasDiff {
+				displayBranches += " " + color.Red("*")
+			}
+		}
+		displayBranches += "\n"
 	}
 	return "Current stack: " + color.Green(data.CurrentStack) + "\nBranches:\n" + displayBranches
 }
@@ -74,7 +82,7 @@ func (sm StacksManager) AddBranch(branchName string) {
 	stack.Branches = append(stack.Branches, branchName)
 	stack.Branches = slices.Compact(stack.Branches)
 	sm.stacksPersister.SaveStacks(data)
-	fmt.Println("Branch", branchName, "added to stack", data.CurrentStack)
+	fmt.Println("Branch", color.Yellow(branchName), "added to stack", color.Green(data.CurrentStack))
 }
 
 func (sm StacksManager) List() {
@@ -166,6 +174,7 @@ func (sm StacksManager) Sync(push bool) {
 		log.Fatalf(err.Error())
 	}
 
+	fmt.Println("Syncing stack", color.Green(data.CurrentStack))
 	branches, _ := data.GetBranchesByName(data.CurrentStack)
 	sm.gitCommands.SyncBranches(branches, currentBranch, push)
 }
