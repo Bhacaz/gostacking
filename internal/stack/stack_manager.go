@@ -47,15 +47,13 @@ func (sm StacksManager) CreateStack(stackName string) string {
 	return "CreateStack stack created " + color.Green(stackName)
 }
 
-func (sm StacksManager) CurrentStackStatus() string {
+func (sm StacksManager) CurrentStackStatus(showLog bool) string {
 	data := sm.load()
 
 	var displayBranches string
 	branches, _ := data.GetBranchesByName(data.CurrentStack)
 	var previousBranch string
 	for i, branch := range branches {
-		// Maybe someday it will be nice to add
-		// git log --pretty=format:'%s - %Cred%h%Creset %C(bold blue)%an%Creset %Cgreen%cr%Creset' -n 1 master
 		displayBranches += fmt.Sprintf("%d. "+color.Yellow(branch), i+1)
 		if i > 0 && previousBranch != branch {
 			hasDiff := sm.gitCommands.BranchDiff(previousBranch, branch)
@@ -63,6 +61,10 @@ func (sm StacksManager) CurrentStackStatus() string {
 				displayBranches += " " + color.Red("*")
 			}
 		}
+		if showLog {
+			displayBranches += "\n\t" + sm.gitCommands.LastLog(branch)
+		}
+
 		displayBranches += "\n"
 	}
 	return "Current stack: " + color.Green(data.CurrentStack) + "\nBranches:\n" + displayBranches
@@ -164,7 +166,7 @@ func (sm StacksManager) Delete(stackName string) {
 
 	sm.stacksPersister.SaveStacks(data)
 	fmt.Println("Stack", stackName, "deleted from stack")
-	fmt.Println(sm.CurrentStackStatus())
+	fmt.Println(sm.CurrentStackStatus(false))
 }
 
 func (sm StacksManager) Sync(push bool) {

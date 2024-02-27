@@ -62,7 +62,7 @@ func TestCurrentStackStatus(t *testing.T) {
 		gitCommands:     gitCommandsStub{},
 	}
 
-	result := stacksManager.CurrentStackStatus()
+	result := stacksManager.CurrentStackStatus(false)
 
 	want := "Current stack: " +
 		color.Green("stack1") +

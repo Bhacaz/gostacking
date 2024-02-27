@@ -33,6 +33,7 @@ type InterfaceCommands interface {
 	Checkout(branchName string)
 	SyncBranches(branches []string, checkoutBranchEnd string, push bool)
 	BranchDiff(baseBranch string, branch string) bool
+	LastLog(branch string) string
 }
 
 type Commands struct {
@@ -126,6 +127,15 @@ func (c Commands) BranchDiff(baseBranch string, branch string) bool {
 		return false
 	}
 	return len(output) > 0
+}
+
+func (c Commands) LastLog(branch string) string {
+	output, err := c.exec([]string{"log", "--pretty=format:%s - %Cred%h%Creset - %C(bold blue)%an%Creset - %Cgreen%cr%Creset", "-n", "1", branch})
+	if err != nil {
+		fmt.Println(err)
+		return ""
+	}
+	return output
 }
 
 func (c Commands) pushBranch(branchName string) {
