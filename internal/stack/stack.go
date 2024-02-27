@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"os"
 )
 
 const stacksFile string = ".git/gostacking.json"
@@ -37,7 +37,7 @@ func (s StacksPersistingFile) SaveStacks(data StacksData) {
 func loadStacksFromFile() (StacksData, error) {
 	var data StacksData
 
-	jsonData, err := ioutil.ReadFile(stacksFile)
+	jsonData, err := os.ReadFile(stacksFile)
 	if err != nil {
 		return data, err
 	}
@@ -59,7 +59,7 @@ func saveStacks(data StacksData) {
 
 	//     fmt.Println(string(jsonData))
 	// Write the JSON data to a file
-	err = ioutil.WriteFile(stacksFile, jsonData, 0644)
+	err = os.WriteFile(stacksFile, jsonData, 0644)
 	if err != nil {
 		fmt.Println("Error writing to file:", err)
 		return
