@@ -74,7 +74,7 @@ func (sm StacksManager) AddBranch(branchName string) {
 	stack.Branches = append(stack.Branches, branchName)
 	stack.Branches = slices.Compact(stack.Branches)
 	sm.stacksPersister.SaveStacks(data)
-	fmt.Println("Branch", branchName, "added to stack", data.CurrentStack)
+	fmt.Println("Branch", color.Yellow(branchName), "added to stack", color.Green(data.CurrentStack))
 }
 
 func (sm StacksManager) List() {
