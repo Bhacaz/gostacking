@@ -130,8 +130,8 @@ func (c Commands) BranchDiff(baseBranch string, branch string) bool {
 }
 
 func (c Commands) pushBranch(branchName string) {
-	fmt.Println("Pushing", branchName, "...")
-	_, err := c.exec([]string{"push", branchName})
+	fmt.Println("Pushing", color.Yellow(branchName), "...")
+	_, err := c.exec([]string{"push"})
 	if err != nil {
 		fmt.Println(err)
 	}
