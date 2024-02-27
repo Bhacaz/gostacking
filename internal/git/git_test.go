@@ -6,17 +6,17 @@ import (
 	"testing"
 )
 
-type ExecutorStub struct {
+type executorStub struct {
 	stubFunc func(string) (string, error)
 }
 
-func (es ExecutorStub) execCommand(command string) (string, error) {
+func (es executorStub) execCommand(command string) (string, error) {
 	return es.stubFunc(command)
 }
 
 func cmdStub(f func(string) (string, error)) Commands {
 	return Commands{
-		executor: ExecutorStub{
+		executor: executorStub{
 			stubFunc: f,
 		},
 	}

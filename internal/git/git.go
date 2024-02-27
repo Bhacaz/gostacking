@@ -6,13 +6,13 @@ import (
 	"strings"
 )
 
-type InterfaceGitExecutor interface {
+type interfaceGitExecutor interface {
 	execCommand(command string) (string, error)
 }
 
-type Executor struct{}
+type executor struct{}
 
-func (e Executor) execCommand(gitCmd string) (string, error) {
+func (e executor) execCommand(gitCmd string) (string, error) {
 	cmdArgs := strings.Fields(gitCmd)
 	execCmd := exec.Command("git", cmdArgs...)
 	output, err := execCmd.CombinedOutput()
@@ -26,8 +26,15 @@ func (e Executor) execCommand(gitCmd string) (string, error) {
 	return result, nil
 }
 
+type InterfaceCommands interface {
+	CurrentBranchName() (string, error)
+	BranchExists(branchName string) bool
+	Checkout(branchName string)
+	SyncBranches(branches []string, checkoutBranchEnd string, push bool)
+}
+
 type Commands struct {
-	executor InterfaceGitExecutor
+	executor interfaceGitExecutor
 }
 
 func (c Commands) exec(command string) (string, error) {
@@ -36,7 +43,7 @@ func (c Commands) exec(command string) (string, error) {
 
 func Cmd() Commands {
 	return Commands{
-		executor: Executor{},
+		executor: executor{},
 	}
 }
 
@@ -51,14 +58,6 @@ func (c Commands) CurrentBranchName() (string, error) {
 func (c Commands) BranchExists(branchName string) bool {
 	_, err := c.exec("rev-parse --verify --quiet \"refs/heads/" + branchName + "\"")
 	return err == nil
-}
-
-func (c Commands) pushBranch(branchName string) {
-	fmt.Println("Pushing", branchName, "...")
-	_, err := c.exec("push")
-	if err != nil {
-		fmt.Println(err)
-	}
 }
 
 func (c Commands) Checkout(branchName string) {
@@ -116,6 +115,14 @@ func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push
 		}
 	}
 	_, err = c.exec("checkout " + checkoutBranchEnd)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func (c Commands) pushBranch(branchName string) {
+	fmt.Println("Pushing", branchName, "...")
+	_, err := c.exec("push")
 	if err != nil {
 		fmt.Println(err)
 	}

@@ -1,26 +1,25 @@
 /*
 Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"github.com/Bhacaz/gostacking/internal/stack"
+	"github.com/spf13/cobra"
 )
 
 // addCmd represents the add command
 var addCmd = &cobra.Command{
 	Use:   "add [branch]",
 	Short: "Add a branch to the current stack. If no branch is given, add the current branch.",
-	Long: `Add a branch to the current stack.`,
-	Args: cobra.RangeArgs(0, 1),
+	Long:  `Add a branch to the current stack.`,
+	Args:  cobra.RangeArgs(0, 1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-		    stack.Add("")
+			stack.Manager().AddBranch("")
 		} else {
-            stack.Add(args[0])
-        }
+			stack.Manager().AddBranch(args[0])
+		}
 	},
 }
 

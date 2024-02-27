@@ -1,13 +1,12 @@
 /*
 Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
-    "strconv"
-    "github.com/Bhacaz/gostacking/internal/stack"
+	"github.com/Bhacaz/gostacking/internal/stack"
 	"github.com/spf13/cobra"
+	"strconv"
 )
 
 var removeCmd = &cobra.Command{
@@ -15,10 +14,10 @@ var removeCmd = &cobra.Command{
 	Short: "Remove a branch from the current stack. (Branch name or number)",
 	Run: func(cmd *cobra.Command, args []string) {
 		if n, err := strconv.Atoi(args[0]); err == nil {
-                stack.RemoveByNumber(n)
-            } else {
-                stack.RemoveByName(args[0])
-            }
+			stack.Manager().RemoveByNumber(n)
+		} else {
+			stack.Manager().RemoveByName(args[0])
+		}
 	},
 }
 

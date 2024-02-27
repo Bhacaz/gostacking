@@ -2,6 +2,7 @@ package stack
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 )
@@ -26,14 +27,14 @@ type StacksPersisting interface {
 type StacksPersistingFile struct{}
 
 func (s StacksPersistingFile) LoadStacks() (StacksData, error) {
-	return LoadStacksFromFile()
+	return loadStacksFromFile()
 }
 
 func (s StacksPersistingFile) SaveStacks(data StacksData) {
-	SaveStacks(data)
+	saveStacks(data)
 }
 
-func LoadStacksFromFile() (StacksData, error) {
+func loadStacksFromFile() (StacksData, error) {
 	var data StacksData
 
 	jsonData, err := ioutil.ReadFile(stacksFile)
@@ -49,7 +50,7 @@ func LoadStacksFromFile() (StacksData, error) {
 	return data, nil
 }
 
-func SaveStacks(data StacksData) {
+func saveStacks(data StacksData) {
 	jsonData, err := json.MarshalIndent(data, "", "    ")
 	if err != nil {
 		fmt.Println("Error marshaling JSON:", err)
@@ -71,7 +72,7 @@ func (data StacksData) GetStackByName(stackName string) (*Stack, error) {
 			return &data.Stacks[i], nil
 		}
 	}
-	return &Stack{}, fmt.Errorf("stack with name %s not found", stackName)
+	return &Stack{}, errors.New("Stack " + stackName + " not found")
 }
 
 func (data StacksData) GetBranchesByName(stackName string) ([]string, error) {
