@@ -31,6 +31,7 @@ type InterfaceCommands interface {
 	BranchExists(branchName string) bool
 	Checkout(branchName string)
 	SyncBranches(branches []string, checkoutBranchEnd string, push bool)
+	BranchDiff(baseBranch string, branch string) bool
 }
 
 type Commands struct {
@@ -118,6 +119,16 @@ func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push
 	if err != nil {
 		fmt.Println(err)
 	}
+}
+
+func (c Commands) BranchDiff(baseBranch string, branch string) bool {
+	output, err := c.exec("diff --name-only " + baseBranch + "..." + branch)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+	fmt.Println("Diff:", output)
+	return len(output) > 0
 }
 
 func (c Commands) pushBranch(branchName string) {

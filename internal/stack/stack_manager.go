@@ -52,10 +52,18 @@ func (sm StacksManager) CurrentStackStatus() string {
 
 	var displayBranches string
 	branches, _ := data.GetBranchesByName(data.CurrentStack)
+	var previousBranch string
 	for i, branch := range branches {
 		// Maybe someday it will be nice to add
 		// git log --pretty=format:'%s - %Cred%h%Creset %C(bold blue)%an%Creset %Cgreen%cr%Creset' -n 1 master
-		displayBranches += fmt.Sprintf("%d. "+color.Yellow(branch)+"\n", i+1)
+		displayBranches += fmt.Sprintf("%d. "+color.Yellow(branch), i+1)
+		if i > 0 && previousBranch != branch {
+			hasDiff := sm.gitCommands.BranchDiff(previousBranch, branch)
+			if hasDiff {
+				displayBranches += " " + color.Red("*")
+			}
+		}
+		displayBranches += "\n"
 	}
 	return "Current stack: " + color.Green(data.CurrentStack) + "\nBranches:\n" + displayBranches
 }
