@@ -41,3 +41,8 @@ changelog:
 
 env_files:
   github_token: .github_token
+
+brews:
+  - repository:
+      name: homebrew-tap
+    skip_upload: true
