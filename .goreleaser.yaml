@@ -44,4 +44,5 @@ env_files:
 
 brews:
   - repository:
+      owner: Bhacaz
       name: homebrew-tap
