@@ -9,4 +9,4 @@ git commit -m "Release $version"
 git tag -a "$version" -m "Release $version"
 git push --tags
 
-goreleaser release
+goreleaser release --clean
