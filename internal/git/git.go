@@ -103,6 +103,7 @@ func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push
 			}
 			continue
 		}
+
 		toMerge := branches[i-1]
 		fmt.Println("Merging", toMerge, "->", branch)
 		err = c.merge(branch, toMerge)

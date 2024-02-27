@@ -118,12 +118,11 @@ func TestCheckout(t *testing.T) {
 func TestSyncBranches(t *testing.T) {
 	t.Run("Git not clean", func(t *testing.T) {
 		gitCmd := cmdStub(func(cmd string) (string, error) {
-			// case cmd include status
 			if strings.Contains(cmd, "status") {
 				return "M some_file.go", nil
 			}
 			t.Errorf("git command should not have been called: %s", cmd)
-			return "", errors.New("git command not found")
+			return "", errors.New("git command error")
 		})
 
 		gitCmd.SyncBranches([]string{"my_feature_part1", "my_feature_part2"}, "my_feature_part1", false)
@@ -131,14 +130,13 @@ func TestSyncBranches(t *testing.T) {
 
 	t.Run("Fetch error", func(t *testing.T) {
 		gitCmd := cmdStub(func(cmd string) (string, error) {
-			// case cmd include status
 			if strings.Contains(cmd, "status") {
 				return "", nil
 			} else if strings.Contains(cmd, "fetch") {
 				return "", errors.New("git error fetching")
 			}
 			t.Errorf("git command should not have been called: %s", cmd)
-			return "", errors.New("git command not found")
+			return "", errors.New("git command error")
 		})
 
 		gitCmd.SyncBranches([]string{"my_feature_part1", "my_feature_part2"}, "my_feature_part1", false)
@@ -146,17 +144,116 @@ func TestSyncBranches(t *testing.T) {
 
 	t.Run("Checkout error", func(t *testing.T) {
 		gitCmd := cmdStub(func(cmd string) (string, error) {
-			// case cmd include status
 			if strings.Contains(cmd, "status") {
 				return "", nil
 			} else if strings.Contains(cmd, "fetch") {
 				return "", nil
 			} else if strings.Contains(cmd, "checkout") {
-				return "", errors.New("git error fetching")
+				return "", errors.New("git error checkout")
 			}
-			return "", errors.New("git command not found")
+			t.Errorf("git command should not have been called: %s", cmd)
+			return "", errors.New("git command error")
 		})
 
 		gitCmd.SyncBranches([]string{"my_feature_part1", "my_feature_part2"}, "my_feature_part1", false)
+	})
+
+	t.Run("Merge error", func(t *testing.T) {
+		gitCmd := cmdStub(func(cmd string) (string, error) {
+			if strings.Contains(cmd, "status") {
+				return "", nil
+			} else if strings.Contains(cmd, "fetch") {
+				return "", nil
+			} else if strings.Contains(cmd, "checkout") {
+				return "", nil
+			} else if strings.Contains(cmd, "pull") {
+				return "", nil
+			} else if strings.Contains(cmd, "merge") {
+				if strings.Contains(cmd, "into my_feature_part1") {
+					t.Errorf("nothing should be merge in the first branch. cmd: %s", cmd)
+				}
+				return "", errors.New("git error merge")
+			}
+			t.Errorf("git command should not have been called: %s", cmd)
+			return "", errors.New("git command error")
+		})
+
+		gitCmd.SyncBranches([]string{"my_feature_part1", "my_feature_part2"}, "my_feature_part1", false)
+	})
+
+	t.Run("Merge", func(t *testing.T) {
+		var part1Merged = false
+		var lastCheckoutMain = false
+
+		gitCmd := cmdStub(func(cmd string) (string, error) {
+			if strings.Contains(cmd, "status") {
+				return "", nil
+			} else if strings.Contains(cmd, "fetch") {
+				return "", nil
+			} else if strings.Contains(cmd, "checkout") {
+				if strings.Contains(cmd, "main") {
+					lastCheckoutMain = true
+				}
+				return "", nil
+			} else if strings.Contains(cmd, "pull") {
+				return "", nil
+			} else if strings.Contains(cmd, "merge") {
+				if strings.Contains(cmd, "into my_feature_part1") {
+					t.Errorf("nothing should be merge in the first branch. cmd: %s", cmd)
+				} else if strings.Contains(cmd, "into my_feature_part2") {
+					part1Merged = true
+				}
+				return "", nil
+			}
+			t.Errorf("git command should not have been called: %s", cmd)
+			return "", errors.New("git command error")
+		})
+
+		gitCmd.SyncBranches([]string{"my_feature_part1", "my_feature_part2"}, "main", false)
+		if !part1Merged {
+			t.Errorf("my_feature_part1 should have been merged into my_feature_part2")
+		}
+		if !lastCheckoutMain {
+			t.Errorf("last checkout should have been main")
+		}
+	})
+
+	t.Run("Merge with push", func(t *testing.T) {
+		var part1Merged = false
+		var lastCheckoutMain = false
+
+		gitCmd := cmdStub(func(cmd string) (string, error) {
+			if strings.Contains(cmd, "status") {
+				return "", nil
+			} else if strings.Contains(cmd, "fetch") {
+				return "", nil
+			} else if strings.Contains(cmd, "checkout") {
+				if strings.Contains(cmd, "main") {
+					lastCheckoutMain = true
+				}
+				return "", nil
+			} else if strings.Contains(cmd, "pull") {
+				return "", nil
+			} else if strings.Contains(cmd, "merge") {
+				if strings.Contains(cmd, "into my_feature_part1") {
+					t.Errorf("nothing should be merge in the first branch. cmd: %s", cmd)
+				} else if strings.Contains(cmd, "into my_feature_part2") {
+					part1Merged = true
+				}
+				return "", nil
+			} else if strings.Contains(cmd, "push") {
+				return "", nil
+			}
+			t.Errorf("git command should not have been called: %s", cmd)
+			return "", errors.New("git command error")
+		})
+
+		gitCmd.SyncBranches([]string{"my_feature_part1", "my_feature_part2"}, "main", true)
+		if !part1Merged {
+			t.Errorf("my_feature_part1 should have been merged into my_feature_part2")
+		}
+		if !lastCheckoutMain {
+			t.Errorf("last checkout should have been main")
+		}
 	})
 }
