@@ -125,7 +125,6 @@ func (c Commands) BranchDiff(baseBranch string, branch string) bool {
 		fmt.Println(err)
 		return false
 	}
-	fmt.Println("Diff:", output)
 	return len(output) > 0
 }
 
