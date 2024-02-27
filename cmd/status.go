@@ -14,7 +14,8 @@ var statusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "Get current stack.",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(stack.Manager().CurrentStackStatus())
+		showLogValue, _ := cmd.Flags().GetBool("log")
+		fmt.Println(stack.Manager().CurrentStackStatus(showLogValue))
 	},
 }
 
@@ -30,4 +31,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// statusCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	statusCmd.Flags().BoolP("log", "l", false, "Show last commit log for each branch in the stack.")
 }
