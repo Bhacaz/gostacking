@@ -2,6 +2,7 @@ package git
 
 import (
 	"fmt"
+	"github.com/Bhacaz/gostacking/internal/color"
 	"log"
 	"os/exec"
 	"strings"
@@ -83,17 +84,17 @@ func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push
 	}
 
 	for i, branch := range branches {
-		fmt.Println("Checkout to", branch)
+		fmt.Println("Checkout to", color.Yellow(branch))
 		_, err = c.exec([]string{"checkout", branch})
 		if err != nil {
 			fmt.Println(err)
 			break
 		}
 
-		fmt.Println("Pulling", branch, "...")
+		fmt.Println("Pulling", color.Yellow(branch), "...")
 		_, err = c.exec([]string{"pull"})
 		if err != nil {
-			fmt.Println("Nothing to pull on", branch)
+			fmt.Println("Nothing to pull on", color.Yellow(branch))
 		}
 
 		// Nothing to merge on first branch
@@ -105,7 +106,7 @@ func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push
 		}
 
 		toMerge := branches[i-1]
-		fmt.Println("Merging", toMerge, "->", branch)
+		fmt.Println("Merging", color.Yellow(toMerge), "->", color.Yellow(branch))
 		err = c.merge(branch, toMerge)
 		if err != nil {
 			fmt.Println(err)
