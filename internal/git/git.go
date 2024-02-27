@@ -65,7 +65,7 @@ func (c Commands) BranchExists(branchName string) bool {
 func (c Commands) Checkout(branchName string) {
 	_, err := c.exec([]string{"checkout", branchName})
 	if err != nil {
-		log.Fatalf("Error checking out branch %s: %s", branchName, err.Error())
+		log.Fatalf("Error checkout branch %s: %s", color.Yellow(branchName), err.Error())
 	}
 }
 
