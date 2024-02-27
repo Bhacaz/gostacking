@@ -2,6 +2,7 @@ package git
 
 import (
 	"fmt"
+	"log"
 	"os/exec"
 	"strings"
 )
@@ -63,7 +64,7 @@ func (c Commands) BranchExists(branchName string) bool {
 func (c Commands) Checkout(branchName string) {
 	_, err := c.exec([]string{"checkout", branchName})
 	if err != nil {
-		fmt.Println(err)
+		log.Fatalf("Error checking out branch %s: %s", branchName, err.Error())
 	}
 }
 
@@ -83,7 +84,7 @@ func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push
 
 	for i, branch := range branches {
 		fmt.Println("Checkout to", branch)
-		c.Checkout(branch)
+		_, err = c.exec([]string{"checkout", branch})
 		if err != nil {
 			fmt.Println(err)
 			break
@@ -92,7 +93,7 @@ func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push
 		fmt.Println("Pulling", branch, "...")
 		_, err = c.exec([]string{"pull"})
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("Nothing to pull on", branch)
 		}
 
 		// Nothing to merge on first branch
@@ -115,9 +116,6 @@ func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push
 		}
 	}
 	c.Checkout(checkoutBranchEnd)
-	if err != nil {
-		fmt.Println(err)
-	}
 }
 
 func (c Commands) BranchDiff(baseBranch string, branch string) bool {
