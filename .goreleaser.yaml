@@ -45,4 +45,3 @@ env_files:
 brews:
   - repository:
       name: homebrew-tap
-    skip_upload: true

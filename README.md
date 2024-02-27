@@ -79,6 +79,11 @@ go build -ldflags="-s -w" -o dist
 goreleaser release
 ```
 
+## Release
+
+1. Update `.version`
+2. `zsh release.zsh`
+
 ## TODOs
 
 - [ ] Change way prints works, stack.go should return string and cmd should print it.
