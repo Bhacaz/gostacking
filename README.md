@@ -75,7 +75,8 @@ https://cobra.dev/
 ```bash
 ~/go/bin/cobra-cli add new
 go mod tidy
-go build -ldflags="-s -w" -o bin
+go build -ldflags="-s -w" -o dist
+goreleaser release
 ```
 
 ## TODOs
