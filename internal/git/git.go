@@ -120,7 +120,7 @@ func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push
 }
 
 func (c Commands) BranchDiff(baseBranch string, branch string) bool {
-	output, err := c.exec([]string{"diff", "--name-only", baseBranch + "..." + branch})
+	output, err := c.exec([]string{"diff", "--name-only", branch + "..." + baseBranch})
 	if err != nil {
 		fmt.Println(err)
 		return false
