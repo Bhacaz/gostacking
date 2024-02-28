@@ -90,7 +90,7 @@ goreleaser release
 ## Release
 
 1. Update `.version`
-2. `zsh release.zsh`
+2. `zsh scripts/release.zsh`
 
 ## TODOs
 

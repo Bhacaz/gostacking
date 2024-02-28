@@ -10,10 +10,8 @@ version: 1
 
 before:
   hooks:
-    # You may remove this if you don't use go modules.
     - go mod tidy
-    # you may remove this if you don't need go generate
-    - go generate ./...
+    - ./scripts/completions.zsh
 
 builds:
   - env:
@@ -23,6 +21,10 @@ builds:
 
 archives:
   - format: tar.gz
+    files:
+      - README.md
+      - LICENSE
+      - completions/*
     # this name template makes the OS and Arch compatible with the results of `uname`.
     name_template: >-
       {{ .ProjectName }}_
@@ -43,6 +45,10 @@ env_files:
   github_token: .github_token
 
 brews:
-  - repository:
+  - extra_install: |-
+      zsh_completion.install "completions/{{ .ProjectName }}.zsh" => "{{ .ProjectName }}"
+    homepage: "https://github.com/Bhacaz/gostacking"
+    description: "Git stacking using merge"
+    repository:
       owner: Bhacaz
       name: homebrew-tap

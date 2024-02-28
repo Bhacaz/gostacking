@@ -6,6 +6,7 @@ import (
 	"github.com/Bhacaz/gostacking/internal/git"
 	"log"
 	"slices"
+	"strings"
 )
 
 type StacksManager struct {
@@ -93,6 +94,18 @@ func (sm StacksManager) List() {
 	for i, stack := range data.Stacks {
 		fmt.Printf("%d. %s\n", i+1, color.Yellow(stack.Name))
 	}
+}
+
+func (sm StacksManager) ListStacksForCompletion(toComplete string) []string {
+	data := sm.load()
+	// map data.Stacks names
+	var stacks []string
+	for _, stack := range data.Stacks {
+		if toComplete == "" || strings.HasPrefix(stack.Name, toComplete) {
+			stacks = append(stacks, stack.Name)
+		}
+	}
+	return stacks
 }
 
 func (sm StacksManager) SwitchByName(stackName string) {
