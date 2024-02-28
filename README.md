@@ -24,6 +24,9 @@ Only **MacOS** is supported for now via Homebrew.
 brew tap Bhacaz/tap
 brew install gostacking
 brew link gostacking
+
+# Update
+brew update && brew upgrade gostacking
 ```
 
 ## Commands

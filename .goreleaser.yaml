@@ -46,9 +46,10 @@ env_files:
 
 brews:
   - extra_install: |-
-      zsh_completion.install "completions/{{ .ProjectName }}.zsh" => "{{ .ProjectName }}"
+      zsh_completion.install "completions/{{ .ProjectName }}.zsh" => "_{{ .ProjectName }}"
     homepage: "https://github.com/Bhacaz/gostacking"
     description: "Git stacking using merge"
+    folder: Formula
     repository:
       owner: Bhacaz
       name: homebrew-tap
