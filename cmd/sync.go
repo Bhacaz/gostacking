@@ -11,7 +11,11 @@ import (
 // syncCmd represents the sync command
 var syncCmd = &cobra.Command{
 	Use:   "sync",
-	Short: "Merge all branch in a stack into the current branch.",
+	Short: "Merge all branches into the others",
+	Long: `Merge all branches into the others.
+This command will merge all branches into the others, starting from the bottom of the stack.
+The current git status must be clean before running this command.
+Each branch will be pulled to prevent conflict with the remote.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		pushValue, _ := cmd.Flags().GetBool("push")
 		stack.Manager().Sync(pushValue)

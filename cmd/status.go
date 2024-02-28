@@ -12,7 +12,11 @@ import (
 // statusCmd represents the status command
 var statusCmd = &cobra.Command{
 	Use:   "status",
-	Short: "Get current stack.",
+	Short: "Get current stack",
+	Long: `Get current stack.
+Show the current stack and the current branch.
+Branches out of sync with the previous branch are marked with a star (*).
+Add the --log flag to show the last commit log for each branch in the stack.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		showLogValue, _ := cmd.Flags().GetBool("log")
 		fmt.Println(stack.Manager().CurrentStackStatus(showLogValue))

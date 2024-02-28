@@ -11,7 +11,7 @@ import (
 // listCmd represents the list command
 var listCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List all stacks.",
+	Short: "List all stacks",
 	Run: func(cmd *cobra.Command, args []string) {
 		stack.Manager().List()
 	},

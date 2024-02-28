@@ -10,8 +10,11 @@ import (
 )
 
 var removeCmd = &cobra.Command{
-	Use:   "remove",
-	Short: "Remove a branch from the current stack. (Branch name or number)",
+	Use:   "remove [branch or number]",
+	Short: "Remove a branch from the current stack",
+	Long: `Remove a branch from the current stack.
+If a number is given, remove the branch by its number in the stack (see status command).
+If a name is given, remove the branch by its name.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if n, err := strconv.Atoi(args[0]); err == nil {
 			stack.Manager().RemoveByNumber(n)

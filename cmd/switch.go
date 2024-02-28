@@ -11,9 +11,12 @@ import (
 
 // switchCmd represents the switch command
 var switchCmd = &cobra.Command{
-	Use:   "switch [stack name or number]",
-	Short: "Change the current stack.",
-	Args:  cobra.ExactArgs(1),
+	Use:   "switch [stack or number]",
+	Short: "Change the current stack",
+	Long: `Change the current stack.
+If a number is given, switch to the stack by its number in the list of stacks (see list command).
+If a name is given, switch to the stack by its name.`,
+	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if n, err := strconv.Atoi(args[0]); err == nil {
 			stack.Manager().SwitchByNumber(n)

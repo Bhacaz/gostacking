@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-version=$(<.version)
+version=$(<VERSION)
 
 sed -i '' "s/Version: \".*\"/Version: \"$version\"/" cmd/root.go
 

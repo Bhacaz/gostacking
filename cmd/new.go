@@ -12,9 +12,10 @@ import (
 // newCmd represents the new command
 var newCmd = &cobra.Command{
 	Use:   "new [name]",
-	Short: "Create a new gostacking.",
-	Long:  `Create a a new gostacking by giving it a name.`,
-	Args:  cobra.MinimumNArgs(1),
+	Short: "Create a new gostacking",
+	Long: `Create a a new gostacking by giving it a name.
+The current branch will be added to the new stack.`,
+	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		stack.Manager().CreateStack(args[0])
 	},

@@ -11,7 +11,7 @@ import (
 // deleteCmd represents the delete command
 var deleteCmd = &cobra.Command{
 	Use:   "delete [stack]",
-	Short: "Delete a gostacking.",
+	Short: "Delete a gostacking",
 	Run: func(cmd *cobra.Command, args []string) {
 		stack.Manager().Delete(args[0])
 	},

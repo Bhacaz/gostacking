@@ -11,8 +11,11 @@ import (
 
 // checkoutCmd represents the checkout command
 var checkoutCmd = &cobra.Command{
-	Use:   "checkout [branch name or number]",
-	Short: "Checkout a branch from a stack.",
+	Use:   "checkout [branch or number]",
+	Short: "Checkout a branch from a stack",
+	Long: `Checkout a branch from a stack.
+If a number is given, checkout the branch by its number in the stack (see status command).
+If a name is given, checkout the branch by its name.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if n, err := strconv.Atoi(args[0]); err == nil {
 			stack.Manager().CheckoutByNumber(n)
