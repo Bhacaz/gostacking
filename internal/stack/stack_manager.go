@@ -98,7 +98,6 @@ func (sm StacksManager) List() {
 
 func (sm StacksManager) ListStacksForCompletion(toComplete string) []string {
 	data := sm.load()
-	// map data.Stacks names
 	var stacks []string
 	for _, stack := range data.Stacks {
 		if toComplete == "" || strings.HasPrefix(stack.Name, toComplete) {

@@ -4,4 +4,3 @@ bin
 dist/
 .github_token
 completions
-completions
