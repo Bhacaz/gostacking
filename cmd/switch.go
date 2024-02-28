@@ -21,6 +21,9 @@ var switchCmd = &cobra.Command{
 			stack.Manager().SwitchByName(args[0])
 		}
 	},
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return stack.Manager().ListStacksForCompletion(toComplete), cobra.ShellCompDirectiveNoFileComp
+	},
 }
 
 func init() {
