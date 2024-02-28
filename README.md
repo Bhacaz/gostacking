@@ -18,25 +18,33 @@ The `sync` command will do:
 
 ## Installation
 
-⚠️ Binary are not signed, you will need to allow it to run on your system. The tool is still in development.
+Only **MacOS** is supported for now via Homebrew.
 
-Go to [releases](https://github.com/Bhacaz/gostacking/releases/latest) and download the binary or compile it yourself.
+```bash
+brew tap Bhacaz/tap
+brew install gostacking
+brew link gostacking
+```
 
 ## Commands
 
 Usage:
 `gostacking [command]`
 
+```
 Available Commands:
-* `add`         Add a branch to the current stack. If no branch is given, add the current branch.
-* `delete`      Delete a gostacking.
-* `list`        List all stacks.
-* `new`         Create a new gostacking.
-* `status`      Get current stack.
-* `switch`      Change the current stack. Using name or index.
-* `sync`        Merge all branch in a stack into the current branch.
-* `checkout`    Checkout a branch from a stack.
-* `remove`      Remove a branch from the current stack. (Branch name or number)
+  add         Add a branch to the current stack. If no branch is given, add the current branch.
+  checkout    Checkout a branch from a stack.
+  completion  Generate the autocompletion script for the specified shell
+  delete      Delete a gostacking.
+  help        Help about any command
+  list        List all stacks.
+  new         Create a new gostacking.
+  remove      Remove a branch from the current stack. (Branch name or number)
+  status      Get current stack.
+  switch      Change the current stack.
+  sync        Merge all branch in a stack into the current branch.
+```
 
 ## Example
 
