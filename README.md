@@ -122,5 +122,23 @@ goreleaser release --snapshot --clean
 
 ## TODOs
 
+- [ ] Modified `switch` so it can be used without args and with the current branch switch to the related stack.
+- [ ] Add flag `--prepend` to `add` command to add the branch at the beginning of the stack.
+- [ ] Add flag `--with-head` to `sync` command to merge the HEAD branch into the first branch.
+  - Detect default HEAD branch `git rev-parse --abbrev-ref HEAD`. If it is not found `git remote set-head origin main`
 - [ ] Change way prints works, stack.go should return string and cmd should print it.
 - [ ] Complete tests.
+- [ ] Better output for `sync` example:
+
+```bash
+gostacking sync
+# Syncing my-stack
+# Fetching ...
+# Branch: feature/1
+#   Checkout ...
+#   Pulling ...
+# Branch: feature/2
+#   Checkout ...
+#   Pulling ...
+#   Merging feature/1
+```
