@@ -124,7 +124,6 @@ goreleaser release --snapshot --clean
 
 ## TODOs
 
-- [ ] Modified `switch` so it can be used without args and with the current branch switch to the related stack.
 - [ ] Add flag `--position` (`-p`) to `add` **command** to add a branch at a specific position.
 - [ ] Change default to merge HEAD into the first branch.
     - add flag to skip `--skip-head` (`-s`) to `sync` **command** to skip merge the HEAD branch into the first branch.

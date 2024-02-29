@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"slices"
 )
 
 const stacksFile string = ".git/gostacking.json"
@@ -78,4 +79,18 @@ func (data StacksData) GetStackByName(stackName string) (*Stack, error) {
 func (data StacksData) GetBranchesByName(stackName string) ([]string, error) {
 	stack, _ := data.GetStackByName(stackName)
 	return stack.Branches, nil
+}
+
+func (data StacksData) GetStackByBranch(branchName string) (*Stack, error) {
+	for i, stack := range data.Stacks {
+		if slices.Contains(stack.Branches, branchName) {
+			return &data.Stacks[i], nil
+		}
+	}
+	return &Stack{}, errors.New("Branch " + branchName + " not found")
+}
+
+func (data StacksData) SetCurrentStack(stackName string) {
+	data.CurrentStack = stackName
+	saveStacks(data)
 }
