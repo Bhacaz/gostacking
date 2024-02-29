@@ -80,24 +80,21 @@ func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push
 	}
 
 	fmt.Println("Fetching...")
-	_, err := c.exec("fetch")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	c.Fetch()
 
 	for i, branch := range branches {
-		fmt.Println("Checkout to", color.Yellow(branch))
-		_, err = c.exec("checkout", branch)
+		fmt.Println("Branch:", color.Yellow(branch))
+		fmt.Println("\tCheckout")
+		_, err := c.exec("checkout", branch)
 		if err != nil {
 			fmt.Println(err)
 			break
 		}
 
-		fmt.Println("Pulling", color.Yellow(branch), "...")
+		fmt.Println("\tPulling", "...")
 		_, err = c.exec("pull")
 		if err != nil {
-			fmt.Println("Nothing to pull on", color.Yellow(branch))
+			fmt.Println("\tNothing to pull on", color.Yellow(branch))
 		}
 
 		// Nothing to merge on first branch
@@ -109,7 +106,7 @@ func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push
 		}
 
 		toMerge := branches[i-1]
-		fmt.Println("Merging", color.Yellow(toMerge), "->", color.Yellow(branch))
+		fmt.Println("\tMerging", color.Yellow(toMerge))
 		err = c.merge(branch, toMerge)
 		if err != nil {
 			fmt.Println(err)

@@ -198,7 +198,7 @@ func (sm StacksManager) Sync(push bool) {
 		log.Fatalf(err.Error())
 	}
 
-	fmt.Println("Syncing stack", color.Green(data.CurrentStack))
+	fmt.Println("Syncing", color.Green(data.CurrentStack))
 	branches, _ := data.GetBranchesByName(data.CurrentStack)
 	sm.gitCommands.SyncBranches(branches, currentBranch, push)
 }
