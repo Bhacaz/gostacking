@@ -154,7 +154,6 @@ func (c Commands) Fetch() {
 	if err != nil {
 		fmt.Println(err)
 	}
-
 }
 
 func (c Commands) pushBranch(branchName string) {
