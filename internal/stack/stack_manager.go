@@ -45,7 +45,7 @@ func (sm StacksManager) CreateStack(stackName string) string {
 	data.Stacks = append(data.Stacks, newStack)
 
 	sm.stacksPersister.SaveStacks(data)
-	return "CreateStack stack created " + color.Green(stackName)
+	return "Stack created " + color.Green(stackName)
 }
 
 func (sm StacksManager) CurrentStackStatus(showLog bool) string {
@@ -197,13 +197,16 @@ func (sm StacksManager) Delete(stackName string) {
 
 	data.Stacks = filteredStacks
 
-	if data.CurrentStack == stackName {
-		data.CurrentStack = data.Stacks[0].Name
+	var newCurrentStack = data.CurrentStack
+	if len(filteredStacks) > 0 && data.CurrentStack == stackName {
+		newCurrentStack = data.Stacks[0].Name
+	} else if len(filteredStacks) == 0 {
+		newCurrentStack = ""
 	}
+	data.CurrentStack = newCurrentStack
 
 	sm.stacksPersister.SaveStacks(data)
-	fmt.Println("Stack", stackName, "deleted from stack")
-	fmt.Println(sm.CurrentStackStatus(false))
+	fmt.Println("Stack", color.Green(stackName), "deleted")
 }
 
 func (sm StacksManager) Sync(push bool) {

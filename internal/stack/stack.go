@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"slices"
+	"strings"
 )
 
 const stacksFile string = ".git/gostacking.json"
@@ -39,8 +40,14 @@ func loadStacksFromFile() (StacksData, error) {
 	var data StacksData
 
 	jsonData, err := os.ReadFile(stacksFile)
+	// If the file does not exist, return an empty data
+	// Calling SaveStacks will create the file
 	if err != nil {
-		return data, err
+		if strings.Contains(err.Error(), "no such file or directory") {
+			return data, nil
+		} else {
+			return data, err
+		}
 	}
 
 	err = json.Unmarshal(jsonData, &data)

@@ -54,7 +54,7 @@ func TestCreateStack(t *testing.T) {
 	}
 
 	// Return the message for CLI
-	want := "CreateStack stack created " + color.Green("stack3")
+	want := "Stack created " + color.Green("stack3")
 	if result != want {
 		t.Errorf("got %s, want %s", result, want)
 	}
