@@ -9,12 +9,12 @@ import (
 )
 
 type interfaceGitExecutor interface {
-	execCommand(command []string) (string, error)
+	execCommand(command ...string) (string, error)
 }
 
 type executor struct{}
 
-func (e executor) execCommand(gitCmdArgs []string) (string, error) {
+func (e executor) execCommand(gitCmdArgs ...string) (string, error) {
 	execCmd := exec.Command("git", gitCmdArgs...)
 	output, err := execCmd.CombinedOutput()
 	result := strings.TrimSuffix(string(output), "\n")
@@ -34,14 +34,16 @@ type InterfaceCommands interface {
 	SyncBranches(branches []string, checkoutBranchEnd string, push bool)
 	BranchDiff(baseBranch string, branch string) bool
 	LastLog(branch string) string
+	IsBehindRemote(branch string) bool
+	Fetch()
 }
 
 type Commands struct {
 	executor interfaceGitExecutor
 }
 
-func (c Commands) exec(command []string) (string, error) {
-	return c.executor.execCommand(command)
+func (c Commands) exec(command ...string) (string, error) {
+	return c.executor.execCommand(command...)
 }
 
 func Cmd() Commands {
@@ -51,7 +53,7 @@ func Cmd() Commands {
 }
 
 func (c Commands) CurrentBranchName() (string, error) {
-	currentBranch, err := c.exec([]string{"rev-parse", "--abbrev-ref", "HEAD"})
+	currentBranch, err := c.exec("rev-parse", "--abbrev-ref", "HEAD")
 	if err != nil {
 		return "", err
 	}
@@ -59,12 +61,12 @@ func (c Commands) CurrentBranchName() (string, error) {
 }
 
 func (c Commands) BranchExists(branchName string) bool {
-	_, err := c.exec([]string{"rev-parse", "--verify", "--quiet", "refs/heads/" + branchName})
+	_, err := c.exec("rev-parse", "--verify", "--quiet", "refs/heads/"+branchName)
 	return err == nil
 }
 
 func (c Commands) Checkout(branchName string) {
-	_, err := c.exec([]string{"checkout", branchName})
+	_, err := c.exec("checkout", branchName)
 	if err != nil {
 		log.Fatalf("Error checkout branch %s: %s", color.Yellow(branchName), err.Error())
 	}
@@ -78,7 +80,7 @@ func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push
 	}
 
 	fmt.Println("Fetching...")
-	_, err := c.exec([]string{"fetch"})
+	_, err := c.exec("fetch")
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -86,14 +88,14 @@ func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push
 
 	for i, branch := range branches {
 		fmt.Println("Checkout to", color.Yellow(branch))
-		_, err = c.exec([]string{"checkout", branch})
+		_, err = c.exec("checkout", branch)
 		if err != nil {
 			fmt.Println(err)
 			break
 		}
 
 		fmt.Println("Pulling", color.Yellow(branch), "...")
-		_, err = c.exec([]string{"pull"})
+		_, err = c.exec("pull")
 		if err != nil {
 			fmt.Println("Nothing to pull on", color.Yellow(branch))
 		}
@@ -121,7 +123,7 @@ func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push
 }
 
 func (c Commands) BranchDiff(baseBranch string, branch string) bool {
-	output, err := c.exec([]string{"diff", "--name-only", branch + "..." + baseBranch})
+	output, err := c.exec("diff", "--name-only", branch+"..."+baseBranch)
 	if err != nil {
 		fmt.Println(err)
 		return false
@@ -130,7 +132,7 @@ func (c Commands) BranchDiff(baseBranch string, branch string) bool {
 }
 
 func (c Commands) LastLog(branch string) string {
-	output, err := c.exec([]string{"log", "--pretty=format:%s - %Cred%h%Creset - %C(bold blue)%an%Creset - %Cgreen%cr%Creset", "-n", "1", branch})
+	output, err := c.exec("log", "--pretty=format:%s - %Cred%h%Creset - %C(bold blue)%an%Creset - %Cgreen%cr%Creset", "-n", "1", branch)
 	if err != nil {
 		fmt.Println(err)
 		return ""
@@ -138,16 +140,32 @@ func (c Commands) LastLog(branch string) string {
 	return output
 }
 
+func (c Commands) IsBehindRemote(branch string) bool {
+	output, err := c.exec("status", "-sb", branch)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+	return strings.Contains(output, "behind")
+}
+
+func (c Commands) Fetch() {
+	_, err := c.exec("fetch")
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
 func (c Commands) pushBranch(branchName string) {
 	fmt.Println("Pushing", color.Yellow(branchName), "...")
-	_, err := c.exec([]string{"push"})
+	_, err := c.exec("push")
 	if err != nil {
 		fmt.Println(err)
 	}
 }
 
 func (c Commands) gitClean() bool {
-	output, err := c.exec([]string{"status", "--porcelain"})
+	output, err := c.exec("status", "--porcelain")
 	if err != nil {
 		return false
 	}
@@ -155,14 +173,14 @@ func (c Commands) gitClean() bool {
 }
 
 func (c Commands) merge(currentBranch string, toMerge string) error {
-	output, err := c.exec([]string{
+	output, err := c.exec(
 		"merge",
 		toMerge,
 		"--no-squash",
 		"--commit",
 		"-m",
-		"Merge branch " + toMerge + " into " + currentBranch + " (gostacking)",
-	})
+		"Merge branch "+toMerge+" into "+currentBranch+" (gostacking)",
+	)
 	if err != nil {
 		fmt.Println("Error merging:", output)
 		return err

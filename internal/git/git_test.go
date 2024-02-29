@@ -7,14 +7,14 @@ import (
 )
 
 type executorStub struct {
-	stubFunc func([]string) (string, error)
+	stubFunc func(...string) (string, error)
 }
 
-func (es executorStub) execCommand(command []string) (string, error) {
-	return es.stubFunc(command)
+func (es executorStub) execCommand(command ...string) (string, error) {
+	return es.stubFunc(command...)
 }
 
-func cmdStub(f func([]string) (string, error)) Commands {
+func cmdStub(f func(...string) (string, error)) Commands {
 	return Commands{
 		executor: executorStub{
 			stubFunc: f,
@@ -24,7 +24,7 @@ func cmdStub(f func([]string) (string, error)) Commands {
 
 func TestCurrentBranchName(t *testing.T) {
 	t.Run("Get current branch name", func(t *testing.T) {
-		gitCmd := cmdStub(func([]string) (string, error) {
+		gitCmd := cmdStub(func(...string) (string, error) {
 			return "master", nil
 		})
 
@@ -41,7 +41,7 @@ func TestCurrentBranchName(t *testing.T) {
 	})
 
 	t.Run("Error", func(t *testing.T) {
-		gitCmd := cmdStub(func([]string) (string, error) {
+		gitCmd := cmdStub(func(...string) (string, error) {
 			return "", errors.New("git command error")
 		})
 
@@ -55,7 +55,7 @@ func TestCurrentBranchName(t *testing.T) {
 
 func TestBranchExists(t *testing.T) {
 	t.Run("Branch exists", func(t *testing.T) {
-		gitCmd := cmdStub(func([]string) (string, error) {
+		gitCmd := cmdStub(func(...string) (string, error) {
 			return "my_feature_part1", nil
 		})
 
@@ -67,7 +67,7 @@ func TestBranchExists(t *testing.T) {
 	})
 
 	t.Run("Branch does not exist", func(t *testing.T) {
-		gitCmd := cmdStub(func([]string) (string, error) {
+		gitCmd := cmdStub(func(...string) (string, error) {
 			return "", errors.New("fatal: Needed a single revision")
 		})
 
@@ -81,7 +81,7 @@ func TestBranchExists(t *testing.T) {
 
 func TestPushBranch(t *testing.T) {
 	t.Run("Push branch", func(t *testing.T) {
-		gitCmd := cmdStub(func([]string) (string, error) {
+		gitCmd := cmdStub(func(...string) (string, error) {
 			return "Everything up-to-date", nil
 		})
 
@@ -89,7 +89,7 @@ func TestPushBranch(t *testing.T) {
 	})
 
 	t.Run("Error", func(t *testing.T) {
-		gitCmd := cmdStub(func([]string) (string, error) {
+		gitCmd := cmdStub(func(...string) (string, error) {
 			return "", errors.New("git command error")
 		})
 
@@ -99,7 +99,7 @@ func TestPushBranch(t *testing.T) {
 
 func TestCheckout(t *testing.T) {
 	t.Run("Checkout branch", func(t *testing.T) {
-		gitCmd := cmdStub(func([]string) (string, error) {
+		gitCmd := cmdStub(func(...string) (string, error) {
 			return "Switched to branch 'my_feature_part1'", nil
 		})
 
@@ -109,7 +109,7 @@ func TestCheckout(t *testing.T) {
 
 func TestSyncBranches(t *testing.T) {
 	t.Run("Git not clean", func(t *testing.T) {
-		gitCmd := cmdStub(func(cmd []string) (string, error) {
+		gitCmd := cmdStub(func(cmd ...string) (string, error) {
 			if strings.Contains(strings.Join(cmd, " "), "status") {
 				return "M some_file.go", nil
 			}
@@ -121,7 +121,7 @@ func TestSyncBranches(t *testing.T) {
 	})
 
 	t.Run("Fetch error", func(t *testing.T) {
-		gitCmd := cmdStub(func(cmd []string) (string, error) {
+		gitCmd := cmdStub(func(cmd ...string) (string, error) {
 			if strings.Contains(strings.Join(cmd, " "), "status") {
 				return "", nil
 			} else if strings.Contains(strings.Join(cmd, " "), "fetch") {
@@ -135,7 +135,7 @@ func TestSyncBranches(t *testing.T) {
 	})
 
 	t.Run("Merge error", func(t *testing.T) {
-		gitCmd := cmdStub(func(cmd []string) (string, error) {
+		gitCmd := cmdStub(func(cmd ...string) (string, error) {
 			cmdString := strings.Join(cmd, " ")
 			if strings.Contains(cmdString, "status") {
 				return "", nil
@@ -162,7 +162,7 @@ func TestSyncBranches(t *testing.T) {
 		var part1Merged = false
 		var lastCheckoutMain = false
 
-		gitCmd := cmdStub(func(cmd []string) (string, error) {
+		gitCmd := cmdStub(func(cmd ...string) (string, error) {
 			cmdString := strings.Join(cmd, " ")
 			if strings.Contains(cmdString, "status") {
 				return "", nil
@@ -200,7 +200,7 @@ func TestSyncBranches(t *testing.T) {
 		var part1Merged = false
 		var lastCheckoutMain = false
 
-		gitCmd := cmdStub(func(cmd []string) (string, error) {
+		gitCmd := cmdStub(func(cmd ...string) (string, error) {
 			cmdString := strings.Join(cmd, " ")
 			if strings.Contains(cmdString, "status") {
 				return "", nil
