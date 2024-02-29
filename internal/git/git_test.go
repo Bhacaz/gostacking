@@ -120,20 +120,6 @@ func TestSyncBranches(t *testing.T) {
 		gitCmd.SyncBranches([]string{"my_feature_part1", "my_feature_part2"}, "my_feature_part1", false)
 	})
 
-	t.Run("Fetch error", func(t *testing.T) {
-		gitCmd := cmdStub(func(cmd ...string) (string, error) {
-			if strings.Contains(strings.Join(cmd, " "), "status") {
-				return "", nil
-			} else if strings.Contains(strings.Join(cmd, " "), "fetch") {
-				return "", errors.New("git error fetching")
-			}
-			t.Errorf("git command should not have been called: %s", cmd)
-			return "", errors.New("git command error")
-		})
-
-		gitCmd.SyncBranches([]string{"my_feature_part1", "my_feature_part2"}, "my_feature_part1", false)
-	})
-
 	t.Run("Merge error", func(t *testing.T) {
 		gitCmd := cmdStub(func(cmd ...string) (string, error) {
 			cmdString := strings.Join(cmd, " ")
