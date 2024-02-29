@@ -88,13 +88,15 @@ gostacking status
 # 2. feature/2 *
 
 gostacking sync
-# Syncing stack my-stack
+# Syncing my-stack
 # Fetching ...
-# Checkout to feature/1
-# Pulling feature/1 ...
-# Checkout to feature/2
-# Pulling feature/2 ...
-# Merging feature/1 -> feature/2
+# Branch: feature/1
+#     Checkout ...
+#     Pull ...
+# Branch: feature/2
+#     Checkout ...
+#     Pull ...
+#     Merging feature/1
 
 gostacking status --log
 # my-stack
@@ -129,17 +131,3 @@ goreleaser release --snapshot --clean
     - Detect default HEAD branch `git symbolic-ref refs/remotes/origin/HEAD --short | sed "s@^$(git remote)/@@"`. If it is not found `git remote set-head origin main`
 - [ ] Change way prints works, stack.go should return string and cmd should print it.
 - [ ] Complete tests.
-- [ ] Better output for `sync` example:
-
-```bash
-gostacking sync
-# Syncing my-stack
-# Fetching ...
-# Branch: feature/1
-#   Checkout ...
-#   Pulling ...
-# Branch: feature/2
-#   Checkout ...
-#   Pulling ...
-#   Merging feature/1
-```

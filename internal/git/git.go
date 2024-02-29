@@ -79,19 +79,19 @@ func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push
 		return
 	}
 
-	fmt.Println("Fetching...")
+	fmt.Println("Fetching", "...")
 	c.Fetch()
 
 	for i, branch := range branches {
 		fmt.Println("Branch:", color.Yellow(branch))
-		fmt.Println("\tCheckout")
+		fmt.Println("\tCheckout", "...")
 		_, err := c.exec("checkout", branch)
 		if err != nil {
 			fmt.Println(err)
 			break
 		}
 
-		fmt.Println("\tPulling", "...")
+		fmt.Println("\tPull", "...")
 		_, err = c.exec("pull")
 		if err != nil {
 			fmt.Println("\tNothing to pull on", color.Yellow(branch))
