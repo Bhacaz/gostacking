@@ -119,9 +119,24 @@ func (sm StacksManager) ListStacksForCompletion(toComplete string) []string {
 
 func (sm StacksManager) SwitchByName(stackName string) {
 	data := sm.load()
-	data.CurrentStack = stackName
-	sm.stacksPersister.SaveStacks(data)
-	fmt.Println("Switched to stack", color.Green(stackName))
+	var stack *Stack
+	var err error
+	if stackName == "" {
+		currentBranchName, _ := sm.gitCommands.CurrentBranchName()
+		stack, err = data.GetStackByBranch(currentBranchName)
+		if err != nil {
+			fmt.Println("No stack found for branch", currentBranchName)
+			return
+		}
+	} else {
+		stack, err = data.GetStackByName(stackName)
+		if err != nil {
+			fmt.Println("Stack", stackName, "does not exist")
+			return
+		}
+	}
+	data.SetCurrentStack(stack.Name)
+	fmt.Println("Switched to stack", color.Green(stack.Name))
 }
 
 func (sm StacksManager) SwitchByNumber(number int) {

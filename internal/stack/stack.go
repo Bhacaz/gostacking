@@ -79,3 +79,19 @@ func (data StacksData) GetBranchesByName(stackName string) ([]string, error) {
 	stack, _ := data.GetStackByName(stackName)
 	return stack.Branches, nil
 }
+
+func (data StacksData) GetStackByBranch(branchName string) (*Stack, error) {
+	for i, stack := range data.Stacks {
+		for _, branch := range stack.Branches {
+			if branch == branchName {
+				return &data.Stacks[i], nil
+			}
+		}
+	}
+	return &Stack{}, errors.New("Branch " + branchName + " not found")
+}
+
+func (data StacksData) SetCurrentStack(stackName string) {
+	data.CurrentStack = stackName
+	saveStacks(data)
+}
