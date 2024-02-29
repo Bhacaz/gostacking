@@ -50,17 +50,27 @@ func (sm StacksManager) CreateStack(stackName string) string {
 
 func (sm StacksManager) CurrentStackStatus(showLog bool) string {
 	data := sm.load()
+	sm.gitCommands.Fetch()
 
 	var displayBranches string
 	branches, _ := data.GetBranchesByName(data.CurrentStack)
 	var previousBranch string
 	for i, branch := range branches {
+		var showStar = false
+		if sm.gitCommands.IsBehindRemote(branch) {
+			showStar = true
+		}
+
 		displayBranches += fmt.Sprintf("%d. "+color.Yellow(branch), i+1)
 		if i > 0 && previousBranch != branch {
 			hasDiff := sm.gitCommands.BranchDiff(previousBranch, branch)
-			if hasDiff {
-				displayBranches += " " + color.Red("*")
+			if hasDiff && !showStar {
+				showStar = true
 			}
+		}
+
+		if showStar {
+			displayBranches += " " + color.Red("*")
 		}
 		if showLog {
 			displayBranches += "\n\t" + sm.gitCommands.LastLog(branch)

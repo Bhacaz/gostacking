@@ -34,6 +34,8 @@ type InterfaceCommands interface {
 	SyncBranches(branches []string, checkoutBranchEnd string, push bool)
 	BranchDiff(baseBranch string, branch string) bool
 	LastLog(branch string) string
+	IsBehindRemote(branch string) bool
+	Fetch()
 }
 
 type Commands struct {
@@ -136,6 +138,23 @@ func (c Commands) LastLog(branch string) string {
 		return ""
 	}
 	return output
+}
+
+func (c Commands) IsBehindRemote(branch string) bool {
+	output, err := c.exec("status", "-sb", branch)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+	return strings.Contains(output, "behind")
+}
+
+func (c Commands) Fetch() {
+	_, err := c.exec("fetch")
+	if err != nil {
+		fmt.Println(err)
+	}
+
 }
 
 func (c Commands) pushBranch(branchName string) {
