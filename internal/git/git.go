@@ -138,12 +138,13 @@ func (c Commands) LastLog(branch string) string {
 }
 
 func (c Commands) IsBehindRemote(branch string) bool {
-	output, err := c.exec("status", "-sb", branch)
+	remote, err := c.exec("remote")
+	output, err := c.exec("diff", "--name-only", branch+"..."+remote+"/"+branch)
 	if err != nil {
 		fmt.Println(err)
 		return false
 	}
-	return strings.Contains(output, "behind")
+	return len(output) > 0
 }
 
 func (c Commands) Fetch() {
