@@ -54,7 +54,6 @@ func (sm StacksManager) CurrentStackStatus(showLog bool) string {
 
 	var displayBranches string
 	branches, _ := data.GetBranchesByName(data.CurrentStack)
-	var previousBranch string
 	for i, branch := range branches {
 		var showStar = false
 		if sm.gitCommands.IsBehindRemote(branch) {
@@ -62,8 +61,8 @@ func (sm StacksManager) CurrentStackStatus(showLog bool) string {
 		}
 
 		displayBranches += fmt.Sprintf("%d. "+color.Yellow(branch), i+1)
-		if i > 0 && previousBranch != branch {
-			hasDiff := sm.gitCommands.BranchDiff(previousBranch, branch)
+		if i > 0 {
+			hasDiff := sm.gitCommands.BranchDiff(branches[i-1], branch)
 			if hasDiff && !showStar {
 				showStar = true
 			}
