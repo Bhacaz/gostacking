@@ -184,7 +184,7 @@ func (c Commands) Fetch() {
 }
 
 func (c Commands) pushBranch(branchName string) {
-	fmt.Println("Pushing", color.Yellow(branchName), "...")
+	fmt.Println("\tPush", color.Yellow(branchName), "...")
 	_, err := c.exec("push")
 	if err != nil {
 		fmt.Println(err)

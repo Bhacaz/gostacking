@@ -119,6 +119,8 @@ https://cobra.dev/
 ~/go/bin/cobra-cli add new
 go mod tidy
 go build -ldflags="-s -w" -o dist
+
+# Test the release
 goreleaser release --snapshot --clean
 ```
 
