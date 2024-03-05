@@ -126,5 +126,10 @@ goreleaser release --snapshot --clean
 
 - [ ] Add flag `--position` (`-p`) to `add` **command** to add a branch at a specific position.
 - [ ] Add completion suggestion list of branches (with a max) to `add` **command**.
+- [ ] In `status` command add symbols:
+  - `↑` when the branch is ahead the remote.
+  - `↓` when the branch is behind the remote.
+  - `*` when the branch is out of sync with previous branch.
+  - `H` when the branch is out of sync with HEAD.
 - [ ] Change way prints works, stack.go should return string and cmd should print it.
 - [ ] Complete tests.
