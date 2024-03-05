@@ -135,7 +135,7 @@ func (c Commands) mergeHead() error {
 		return err
 	}
 
-	fmt.Println("\tMerging HEAD")
+	fmt.Println("\tMerging HEAD", color.Yellow(head))
 	_, err = c.exec("merge", head)
 	if err != nil {
 		return err
