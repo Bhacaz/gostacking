@@ -31,7 +31,7 @@ type InterfaceCommands interface {
 	CurrentBranchName() (string, error)
 	BranchExists(branchName string) bool
 	Checkout(branchName string)
-	SyncBranches(branches []string, checkoutBranchEnd string, push bool)
+	SyncBranches(branches []string, checkoutBranchEnd string, push bool, mergeHead bool)
 	BranchDiff(baseBranch string, branch string) bool
 	LastLog(branch string) string
 	IsBehindRemote(branch string) bool
@@ -72,7 +72,7 @@ func (c Commands) Checkout(branchName string) {
 	}
 }
 
-func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push bool) {
+func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push bool, mergeHead bool) {
 	// Return if contains unstaged changes
 	if !c.gitClean() {
 		fmt.Println("Unstaged changes. Please commit or stash them.")
@@ -88,7 +88,7 @@ func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push
 		_, err := c.exec("checkout", branch)
 		if err != nil {
 			fmt.Println(err)
-			break
+			return
 		}
 
 		fmt.Println("\tPull", "...")
@@ -99,6 +99,14 @@ func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push
 
 		// Nothing to merge on first branch
 		if i == 0 {
+			if mergeHead {
+				err = c.mergeHead()
+				if err != nil {
+					fmt.Println(err)
+					// Stop sync so the user can resolve the conflict
+					return
+				}
+			}
 			if push {
 				c.pushBranch(branch)
 			}
@@ -110,13 +118,29 @@ func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push
 		err = c.merge(branch, toMerge)
 		if err != nil {
 			fmt.Println(err)
-			break
+			// Stop sync so the user can resolve the conflict
+			return
 		}
 		if push {
 			c.pushBranch(branch)
 		}
 	}
 	c.Checkout(checkoutBranchEnd)
+}
+
+func (c Commands) mergeHead() error {
+	head, err := c.exec("symbolic-ref", "refs/remotes/origin/HEAD", "--short")
+	if err != nil {
+		fmt.Println("Error getting remote HEAD:\n To set it use try use", color.Teal("git remote set-head origin main"))
+		return err
+	}
+
+	fmt.Println("\tMerging HEAD")
+	_, err = c.exec("merge", head)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c Commands) BranchDiff(baseBranch string, branch string) bool {

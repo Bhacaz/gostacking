@@ -22,7 +22,7 @@ func (g gitCommandsStub) Checkout(branchName string) {
 	// Do nothing
 }
 
-func (g gitCommandsStub) SyncBranches(branches []string, checkoutBranchEnd string, push bool) {
+func (g gitCommandsStub) SyncBranches(branches []string, checkoutBranchEnd string, push bool, mergeHead bool) {
 	// Do nothing
 }
 

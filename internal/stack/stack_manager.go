@@ -48,6 +48,9 @@ func (sm StacksManager) CreateStack(stackName string) string {
 	return "Stack created " + color.Green(stackName)
 }
 
+// CurrentStackStatus Will show start for:
+// 1. Behind remote
+// 2. Has diff with previous branch
 func (sm StacksManager) CurrentStackStatus(showLog bool) string {
 	data := sm.load()
 	sm.gitCommands.Fetch()
@@ -208,7 +211,7 @@ func (sm StacksManager) Delete(stackName string) {
 	fmt.Println("Stack", color.Green(stackName), "deleted")
 }
 
-func (sm StacksManager) Sync(push bool) {
+func (sm StacksManager) Sync(push bool, mergeHead bool) {
 	data := sm.load()
 	currentBranch, err := sm.gitCommands.CurrentBranchName()
 	if err != nil {
@@ -217,7 +220,7 @@ func (sm StacksManager) Sync(push bool) {
 
 	fmt.Println("Syncing", color.Green(data.CurrentStack))
 	branches, _ := data.GetBranchesByName(data.CurrentStack)
-	sm.gitCommands.SyncBranches(branches, currentBranch, push)
+	sm.gitCommands.SyncBranches(branches, currentBranch, push, mergeHead)
 }
 
 func (sm StacksManager) CheckoutByName(branchName string) {
