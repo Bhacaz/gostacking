@@ -117,7 +117,7 @@ func TestSyncBranches(t *testing.T) {
 			return "", errors.New("git command error")
 		})
 
-		gitCmd.SyncBranches([]string{"my_feature_part1", "my_feature_part2"}, "my_feature_part1", false)
+		gitCmd.SyncBranches([]string{"my_feature_part1", "my_feature_part2"}, "my_feature_part1", false, false)
 	})
 
 	t.Run("Merge error", func(t *testing.T) {
@@ -141,7 +141,7 @@ func TestSyncBranches(t *testing.T) {
 			return "", errors.New("git command error")
 		})
 
-		gitCmd.SyncBranches([]string{"my_feature_part1", "my_feature_part2"}, "my_feature_part1", false)
+		gitCmd.SyncBranches([]string{"my_feature_part1", "my_feature_part2"}, "my_feature_part1", false, false)
 	})
 
 	t.Run("Merge", func(t *testing.T) {
@@ -173,7 +173,7 @@ func TestSyncBranches(t *testing.T) {
 			return "", errors.New("git command error")
 		})
 
-		gitCmd.SyncBranches([]string{"my_feature_part1", "my_feature_part2"}, "main", false)
+		gitCmd.SyncBranches([]string{"my_feature_part1", "my_feature_part2"}, "main", false, false)
 		if !part1Merged {
 			t.Errorf("my_feature_part1 should have been merged into my_feature_part2")
 		}
@@ -213,7 +213,7 @@ func TestSyncBranches(t *testing.T) {
 			return "", errors.New("git command error")
 		})
 
-		gitCmd.SyncBranches([]string{"my_feature_part1", "my_feature_part2"}, "main", true)
+		gitCmd.SyncBranches([]string{"my_feature_part1", "my_feature_part2"}, "main", true, false)
 		if !part1Merged {
 			t.Errorf("my_feature_part1 should have been merged into my_feature_part2")
 		}

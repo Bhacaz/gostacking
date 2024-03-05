@@ -21,7 +21,7 @@ func (e executor) execCommand(gitCmdArgs ...string) (string, error) {
 
 	if err != nil {
 		//fmt.Println("Git gitCmd err:", result)
-		return "", err
+		return result, err
 	}
 
 	return result, nil
@@ -31,7 +31,7 @@ type InterfaceCommands interface {
 	CurrentBranchName() (string, error)
 	BranchExists(branchName string) bool
 	Checkout(branchName string)
-	SyncBranches(branches []string, checkoutBranchEnd string, push bool)
+	SyncBranches(branches []string, checkoutBranchEnd string, push bool, mergeHead bool)
 	BranchDiff(baseBranch string, branch string) bool
 	LastLog(branch string) string
 	IsBehindRemote(branch string) bool
@@ -72,7 +72,7 @@ func (c Commands) Checkout(branchName string) {
 	}
 }
 
-func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push bool) {
+func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push bool, mergeHead bool) {
 	// Return if contains unstaged changes
 	if !c.gitClean() {
 		fmt.Println("Unstaged changes. Please commit or stash them.")
@@ -88,17 +88,25 @@ func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push
 		_, err := c.exec("checkout", branch)
 		if err != nil {
 			fmt.Println(err)
-			break
+			return
 		}
 
 		fmt.Println("\tPull", "...")
 		_, err = c.exec("pull")
 		if err != nil {
-			fmt.Println("\tNothing to pull on", color.Yellow(branch))
+			fmt.Println("\tNothing to pull")
 		}
 
 		// Nothing to merge on first branch
 		if i == 0 {
+			if mergeHead {
+				err = c.mergeHead(branch)
+				if err != nil {
+					fmt.Println(err)
+					// Stop sync so the user can resolve the conflict
+					return
+				}
+			}
 			if push {
 				c.pushBranch(branch)
 			}
@@ -110,13 +118,34 @@ func (c Commands) SyncBranches(branches []string, checkoutBranchEnd string, push
 		err = c.merge(branch, toMerge)
 		if err != nil {
 			fmt.Println(err)
-			break
+			// Stop sync so the user can resolve the conflict
+			return
 		}
 		if push {
 			c.pushBranch(branch)
 		}
 	}
 	c.Checkout(checkoutBranchEnd)
+}
+
+func (c Commands) mergeHead(branch string) error {
+	head, err := c.exec("symbolic-ref", "refs/remotes/origin/HEAD", "--short")
+	if err != nil {
+		fmt.Println("Error getting remote HEAD:\n To set it try:", color.Teal("git remote set-head origin main"))
+		return err
+	}
+
+	if !c.BranchDiff(head, branch) {
+		fmt.Println("\tAlready up-to-date with HEAD", color.Yellow(head))
+		return nil
+	}
+
+	fmt.Println("\tMerging HEAD", color.Yellow(head))
+	err = c.merge(branch, head)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c Commands) BranchDiff(baseBranch string, branch string) bool {
@@ -155,7 +184,7 @@ func (c Commands) Fetch() {
 }
 
 func (c Commands) pushBranch(branchName string) {
-	fmt.Println("Pushing", color.Yellow(branchName), "...")
+	fmt.Println("\tPush", color.Yellow(branchName), "...")
 	_, err := c.exec("push")
 	if err != nil {
 		fmt.Println(err)

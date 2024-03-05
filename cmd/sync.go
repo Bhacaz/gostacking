@@ -18,7 +18,8 @@ The current git status must be clean before running this command.
 Each branch will be pulled to prevent conflict with the remote.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		pushValue, _ := cmd.Flags().GetBool("push")
-		stack.Manager().Sync(pushValue)
+		mergeHead, _ := cmd.Flags().GetBool("merge-head")
+		stack.Manager().Sync(pushValue, mergeHead)
 	},
 }
 
@@ -35,4 +36,5 @@ func init() {
 	// is called directly, e.g.:
 	// syncCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	syncCmd.Flags().BoolP("push", "p", false, "Push commits after syncing.")
+	syncCmd.Flags().BoolP("merge-head", "m", false, "Merge the head branch into the first branch of the stack.")
 }
