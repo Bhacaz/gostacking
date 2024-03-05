@@ -126,8 +126,5 @@ goreleaser release --snapshot --clean
 
 - [ ] Add flag `--position` (`-p`) to `add` **command** to add a branch at a specific position.
 - [ ] Add completion suggestion list of branches (with a max) to `add` **command**.
-- [ ] Add option to merge HEAD into the first branch.
-    - `--merge-head` (`-m`) to `sync` **command** to merge the HEAD branch into the first branch.
-    - Detect default HEAD branch `git symbolic-ref refs/remotes/origin/HEAD --short | sed "s@^$(git remote)/@@"`. If it is not found `git remote set-head origin main`
 - [ ] Change way prints works, stack.go should return string and cmd should print it.
 - [ ] Complete tests.
