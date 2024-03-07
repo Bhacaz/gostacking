@@ -135,5 +135,3 @@ goreleaser release --snapshot --clean
   - `H` when the branch is out of sync with HEAD.
 - [ ] Change way prints works, stack.go should return string and cmd should print it.
 - [ ] Complete tests.
-
-tmp
