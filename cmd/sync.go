@@ -16,10 +16,10 @@ var syncCmd = &cobra.Command{
 This command will merge all branches into the others, starting from the bottom of the stack.
 The current git status must be clean before running this command.
 Each branch will be pulled to prevent conflict with the remote.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		pushValue, _ := cmd.Flags().GetBool("push")
 		mergeHead, _ := cmd.Flags().GetBool("merge-head")
-		stack.Manager().Sync(pushValue, mergeHead)
+		return stack.NewManager().Sync(pushValue, mergeHead)
 	},
 }
 

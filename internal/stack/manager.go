@@ -1,9 +1,11 @@
 package stack
 
 import (
+	"errors"
 	"fmt"
 	"github.com/Bhacaz/gostacking/internal/color"
 	"github.com/Bhacaz/gostacking/internal/git"
+	"github.com/Bhacaz/gostacking/internal/printer"
 	"log"
 	"slices"
 	"strings"
@@ -11,7 +13,8 @@ import (
 
 type StacksManager struct {
 	stacksPersister StacksPersisting
-	gitCommands     git.InterfaceCommands
+	gitExecutor     git.InterfaceGitExecutor
+	printer         printer.Printer
 }
 
 func (sm StacksManager) load() StacksData {
@@ -22,17 +25,18 @@ func (sm StacksManager) load() StacksData {
 	return data
 }
 
-func Manager() StacksManager {
+func NewManager() StacksManager {
 	return StacksManager{
 		stacksPersister: StacksPersistingFile{},
-		gitCommands:     git.Cmd(),
+		printer:         printer.NewPrinter(),
+		gitExecutor:     git.NewExecutor(true),
 	}
 }
 
-func (sm StacksManager) CreateStack(stackName string) string {
-	currentBranch, err := sm.gitCommands.CurrentBranchName()
+func (sm StacksManager) CreateStack(stackName string) error {
+	currentBranch, err := sm.currentBranchName()
 	if err != nil {
-		log.Fatalf(err.Error())
+		return err
 	}
 
 	newStack := Stack{
@@ -45,29 +49,39 @@ func (sm StacksManager) CreateStack(stackName string) string {
 	data.Stacks = append(data.Stacks, newStack)
 
 	sm.stacksPersister.SaveStacks(data)
-	return "Stack created " + color.Green(stackName)
+	sm.printer.Println("Stack created", color.Green(stackName))
+	return nil
 }
 
 // CurrentStackStatus Will show start for:
 // 1. Behind remote
 // 2. Has diff with previous branch
-func (sm StacksManager) CurrentStackStatus(showLog bool) string {
+func (sm StacksManager) CurrentStackStatus(showLog bool) error {
 	data := sm.load()
-	sm.gitCommands.Fetch()
+	err := sm.fetch()
+	if err != nil {
+		return err
+	}
 
 	var displayBranches string
 	branches, _ := data.GetBranchesByName(data.CurrentStack)
 	for i, branch := range branches {
 		var showStar = false
-		if sm.gitCommands.IsBehindRemote(branch) {
+		if sm.isBehindRemote(branch) {
 			showStar = true
 		}
 
 		displayBranches += fmt.Sprintf("%d. "+color.Yellow(branch), i+1)
 		if i > 0 {
-			hasDiff := sm.gitCommands.BranchDiff(branches[i-1], branch)
-			if hasDiff && !showStar {
-				showStar = true
+			// Don't check diff if star is already shown
+			if !showStar {
+				hasDiff, err := sm.branchHasDiff(branches[i-1], branch)
+				if err != nil {
+					displayBranches += fmt.Sprintf("Could not get diff status for %s...%s\n%s", branches[i-1], branch, err.Error())
+				}
+				if hasDiff {
+					showStar = true
+				}
 			}
 		}
 
@@ -75,20 +89,25 @@ func (sm StacksManager) CurrentStackStatus(showLog bool) string {
 			displayBranches += " " + color.Red("*")
 		}
 		if showLog {
-			displayBranches += "\n\t" + sm.gitCommands.LastLog(branch)
+			displayBranches += "\n\t" + sm.lastLog(branch)
 		}
 
 		displayBranches += "\n"
 	}
-	return "Current stack: " + color.Green(data.CurrentStack) + "\nBranches:\n" + displayBranches
+	sm.printer.Println("Current stack: " + color.Green(data.CurrentStack) + "\nBranches:\n" + displayBranches)
+	return nil
 }
 
-func (sm StacksManager) AddBranch(branchName string) {
+func (sm StacksManager) AddBranch(branchName string) error {
 	if branchName == "" {
-		branchName, _ = sm.gitCommands.CurrentBranchName()
+		currentBranchName, err := sm.currentBranchName()
+		if err != nil {
+			return err
+		}
+		branchName = currentBranchName
 	} else {
-		if !sm.gitCommands.BranchExists(branchName) {
-			log.Fatalf("Branch %s does not exist", branchName)
+		if !sm.branchExists(branchName) {
+			return errors.New("Branch " + color.Yellow(branchName) + " does not exist")
 		}
 	}
 
@@ -97,15 +116,19 @@ func (sm StacksManager) AddBranch(branchName string) {
 	stack.Branches = append(stack.Branches, branchName)
 	stack.Branches = slices.Compact(stack.Branches)
 	sm.stacksPersister.SaveStacks(data)
-	fmt.Println("Branch", color.Yellow(branchName), "added to stack", color.Green(data.CurrentStack))
+	sm.printer.Println("Branch", color.Yellow(branchName), "added to stack", color.Green(data.CurrentStack))
+	return nil
 }
 
-func (sm StacksManager) List() {
+func (sm StacksManager) List() error {
 	data := sm.load()
-	fmt.Println("Current stack:", color.Green(data.CurrentStack))
+	sm.printer.Println("Current stack:", color.Green(data.CurrentStack))
 	for i, stack := range data.Stacks {
-		fmt.Printf("%d. %s\n", i+1, color.Yellow(stack.Name))
+		sm.printer.Println(
+			fmt.Sprintf("%d. %s", i+1, color.Yellow(stack.Name)),
+		)
 	}
+	return nil
 }
 
 func (sm StacksManager) ListStacksForCompletion(toComplete string) []string {
@@ -119,37 +142,40 @@ func (sm StacksManager) ListStacksForCompletion(toComplete string) []string {
 	return stacks
 }
 
-func (sm StacksManager) SwitchByName(stackName string) {
+func (sm StacksManager) SwitchByName(stackName string) error {
 	data := sm.load()
 	var stack *Stack
 	var err error
 	if stackName == "" {
-		currentBranchName, _ := sm.gitCommands.CurrentBranchName()
+		currentBranchName, err := sm.currentBranchName()
+		if err != nil {
+			return err
+		}
 		stack, err = data.GetStackByBranch(currentBranchName)
 		if err != nil {
-			fmt.Println("No stack found for branch", currentBranchName)
-			return
+			return err
 		}
 	} else {
 		stack, err = data.GetStackByName(stackName)
 		if err != nil {
-			fmt.Println("Stack", stackName, "does not exist")
-			return
+			return err
 		}
 	}
 	data.SetCurrentStack(stack.Name)
-	fmt.Println("Switched to stack", color.Green(stack.Name))
+	sm.printer.Println("Switched to stack", color.Green(stack.Name))
+	return nil
 }
 
-func (sm StacksManager) SwitchByNumber(number int) {
+func (sm StacksManager) SwitchByNumber(number int) error {
 	data := sm.load()
 	stack := data.Stacks[number-1]
 	data.CurrentStack = stack.Name
 	sm.stacksPersister.SaveStacks(data)
-	fmt.Println("Switched to stack", color.Green(stack.Name))
+	sm.printer.Println("Switched to stack", color.Green(stack.Name))
+	return nil
 }
 
-func (sm StacksManager) RemoveByName(branchName string) {
+func (sm StacksManager) RemoveByName(branchName string) error {
 	data := sm.load()
 	stack, _ := data.GetStackByName(data.CurrentStack)
 	var filteredBranches []string
@@ -160,30 +186,30 @@ func (sm StacksManager) RemoveByName(branchName string) {
 	}
 
 	if len(filteredBranches) == len(stack.Branches) {
-		fmt.Println("Branch", branchName, "does not exist")
-		return
+		return errors.New("Branch " + branchName + " does not exist")
 	}
 
 	stack.Branches = filteredBranches
 	sm.stacksPersister.SaveStacks(data)
-	fmt.Println("Branch", color.Yellow(branchName), "removed from stack", color.Green(data.CurrentStack))
+	sm.printer.Println("Branch", color.Yellow(branchName), "removed from stack", color.Green(data.CurrentStack))
+	return nil
 }
 
-func (sm StacksManager) RemoveByNumber(number int) {
+func (sm StacksManager) RemoveByNumber(number int) error {
 	data := sm.load()
 	stack, _ := data.GetStackByName(data.CurrentStack)
 	if number < 1 || number > len(stack.Branches) {
-		fmt.Println("Invalid branch number")
-		return
+		return errors.New("invalid branch number")
 	}
 
 	branchName := stack.Branches[number-1]
 	stack.Branches = append(stack.Branches[:number-1], stack.Branches[number:]...)
 	sm.stacksPersister.SaveStacks(data)
-	fmt.Println("Branch", color.Yellow(branchName), "removed from stack", color.Green(data.CurrentStack))
+	sm.printer.Println("Branch", color.Yellow(branchName), "removed from stack", color.Green(data.CurrentStack))
+	return nil
 }
 
-func (sm StacksManager) Delete(stackName string) {
+func (sm StacksManager) Delete(stackName string) error {
 	data := sm.load()
 	var filteredStacks []Stack
 	for _, stack := range data.Stacks {
@@ -193,8 +219,7 @@ func (sm StacksManager) Delete(stackName string) {
 	}
 
 	if len(filteredStacks) == len(data.Stacks) {
-		fmt.Println("Stack", stackName, "does not exist")
-		return
+		return errors.New("stack " + color.Green(stackName) + " does not exist")
 	}
 
 	data.Stacks = filteredStacks
@@ -208,37 +233,37 @@ func (sm StacksManager) Delete(stackName string) {
 	data.CurrentStack = newCurrentStack
 
 	sm.stacksPersister.SaveStacks(data)
-	fmt.Println("Stack", color.Green(stackName), "deleted")
+	sm.printer.Println("Stack", color.Green(stackName), "deleted")
+	return nil
 }
 
-func (sm StacksManager) Sync(push bool, mergeHead bool) {
+func (sm StacksManager) Sync(push bool, mergeHead bool) error {
 	data := sm.load()
-	currentBranch, err := sm.gitCommands.CurrentBranchName()
+	_, err := sm.currentBranchName()
 	if err != nil {
-		log.Fatalf(err.Error())
+		return err
 	}
 
-	fmt.Println("Syncing", color.Green(data.CurrentStack))
-	branches, _ := data.GetBranchesByName(data.CurrentStack)
-	sm.gitCommands.SyncBranches(branches, currentBranch, push, mergeHead)
+	sm.printer.Println("Syncing", color.Green(data.CurrentStack))
+	//branches, _ := data.GetBranchesByName(data.CurrentStack)
+	//sm.gitCommands.SyncBranches(branches, currentBranch, push, mergeHead)
+	return errors.New("not implemented")
 }
 
-func (sm StacksManager) CheckoutByName(branchName string) {
-	if !sm.gitCommands.BranchExists(branchName) {
-		fmt.Println("Branch", branchName, "does not exist")
-		return
+func (sm StacksManager) CheckoutByName(branchName string) error {
+	if !sm.branchExists(branchName) {
+		return errors.New("branch does not exist")
 	}
 
-	sm.gitCommands.Checkout(branchName)
+	return sm.checkout(branchName)
 }
 
-func (sm StacksManager) CheckoutByNumber(number int) {
+func (sm StacksManager) CheckoutByNumber(number int) error {
 	data := sm.load()
 	branches, _ := data.GetBranchesByName(data.CurrentStack)
 	if number < 1 || number > len(branches) {
-		fmt.Println("Invalid branch number")
-		return
+		return errors.New("invalid branch number")
 	}
 
-	sm.gitCommands.Checkout(branches[number-1])
+	return sm.checkout(branches[number-1])
 }

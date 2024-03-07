@@ -17,17 +17,19 @@ var switchCmd = &cobra.Command{
 If a number is given, switch to the stack by its number in the list of stacks (see list command).
 If a name is given, switch to the stack by its name.
 If no argument is given, switch to the stack that contains the current branch.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		var err error
 		if len(args) == 0 {
-			stack.Manager().SwitchByName("")
+			err = stack.NewManager().SwitchByName("")
 		} else if n, err := strconv.Atoi(args[0]); err == nil {
-			stack.Manager().SwitchByNumber(n)
+			err = stack.NewManager().SwitchByNumber(n)
 		} else {
-			stack.Manager().SwitchByName(args[0])
+			err = stack.NewManager().SwitchByName(args[0])
 		}
+		return err
 	},
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return stack.Manager().ListStacksForCompletion(toComplete), cobra.ShellCompDirectiveNoFileComp
+		return stack.NewManager().ListStacksForCompletion(toComplete), cobra.ShellCompDirectiveNoFileComp
 	},
 }
 

@@ -12,8 +12,8 @@ import (
 var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all stacks",
-	Run: func(cmd *cobra.Command, args []string) {
-		stack.Manager().List()
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return stack.NewManager().List()
 	},
 }
 

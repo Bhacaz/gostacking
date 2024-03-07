@@ -83,11 +83,6 @@ func (data StacksData) GetStackByName(stackName string) (*Stack, error) {
 	return &Stack{}, errors.New("Stack " + stackName + " not found")
 }
 
-func (data StacksData) GetBranchesByName(stackName string) ([]string, error) {
-	stack, _ := data.GetStackByName(stackName)
-	return stack.Branches, nil
-}
-
 func (data StacksData) GetStackByBranch(branchName string) (*Stack, error) {
 	for i, stack := range data.Stacks {
 		if slices.Contains(stack.Branches, branchName) {
@@ -95,6 +90,15 @@ func (data StacksData) GetStackByBranch(branchName string) (*Stack, error) {
 		}
 	}
 	return &Stack{}, errors.New("Branch " + branchName + " not found")
+}
+
+func (data StacksData) GetBranchesByName(stackName string) ([]string, error) {
+	stack, err := data.GetStackByName(stackName)
+	if err != nil {
+		return []string{}, err
+	}
+
+	return stack.Branches, nil
 }
 
 func (data StacksData) SetCurrentStack(stackName string) {

@@ -15,12 +15,14 @@ var removeCmd = &cobra.Command{
 	Long: `Remove a branch from the current stack.
 If a number is given, remove the branch by its number in the stack (see status command).
 If a name is given, remove the branch by its name.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		var err error
 		if n, err := strconv.Atoi(args[0]); err == nil {
-			stack.Manager().RemoveByNumber(n)
+			err = stack.NewManager().RemoveByNumber(n)
 		} else {
-			stack.Manager().RemoveByName(args[0])
+			err = stack.NewManager().RemoveByName(args[0])
 		}
+		return err
 	},
 }
 

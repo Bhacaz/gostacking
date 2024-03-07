@@ -16,12 +16,14 @@ var checkoutCmd = &cobra.Command{
 	Long: `Checkout a branch from a stack.
 If a number is given, checkout the branch by its number in the stack (see status command).
 If a name is given, checkout the branch by its name.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		var err error
 		if n, err := strconv.Atoi(args[0]); err == nil {
-			stack.Manager().CheckoutByNumber(n)
+			err = stack.NewManager().CheckoutByNumber(n)
 		} else {
-			stack.Manager().CheckoutByName(args[0])
+			err = stack.NewManager().CheckoutByName(args[0])
 		}
+		return err
 	},
 }
 

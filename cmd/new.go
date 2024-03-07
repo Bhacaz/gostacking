@@ -4,7 +4,6 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
 	"github.com/Bhacaz/gostacking/internal/stack"
 	// 	"fmt"
 	"github.com/spf13/cobra"
@@ -17,8 +16,8 @@ var newCmd = &cobra.Command{
 	Long: `Create a a new gostacking by giving it a name.
 The current branch will be added to the new stack.`,
 	Args: cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(stack.Manager().CreateStack(args[0]))
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return stack.NewManager().CreateStack(args[0])
 	},
 }
 

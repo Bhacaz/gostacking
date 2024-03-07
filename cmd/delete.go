@@ -12,8 +12,8 @@ import (
 var deleteCmd = &cobra.Command{
 	Use:   "delete [stack]",
 	Short: "Delete a gostacking",
-	Run: func(cmd *cobra.Command, args []string) {
-		stack.Manager().Delete(args[0])
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return stack.NewManager().Delete(args[0])
 	},
 }
 
