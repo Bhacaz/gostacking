@@ -237,19 +237,6 @@ func (sm StacksManager) Delete(stackName string) error {
 	return nil
 }
 
-func (sm StacksManager) Sync(push bool, mergeHead bool) error {
-	data := sm.load()
-	_, err := sm.currentBranchName()
-	if err != nil {
-		return err
-	}
-
-	sm.printer.Println("Syncing", color.Green(data.CurrentStack))
-	//branches, _ := data.GetBranchesByName(data.CurrentStack)
-	//sm.gitCommands.SyncBranches(branches, currentBranch, push, mergeHead)
-	return errors.New("not implemented")
-}
-
 func (sm StacksManager) CheckoutByName(branchName string) error {
 	if !sm.branchExists(branchName) {
 		return errors.New("branch does not exist")
@@ -266,4 +253,83 @@ func (sm StacksManager) CheckoutByNumber(number int) error {
 	}
 
 	return sm.checkout(branches[number-1])
+}
+
+func (sm StacksManager) Sync(push bool, withMainBranch bool) error {
+	data := sm.load()
+	checkoutBranchEnd, err := sm.currentBranchName()
+	if err != nil {
+		return err
+	}
+
+	if sm.unstagedChanges() {
+		return errors.New("unstaged changes. Please commit or stash them")
+	}
+
+	sm.printer.Println("Syncing", color.Green(data.CurrentStack))
+
+	sm.printer.Println("Fetching...")
+	err = sm.fetch()
+	if err != nil {
+		return err
+	}
+
+	branches, _ := data.GetBranchesByName(data.CurrentStack)
+	//sm.gitCommands.SyncBranches(branches, currentBranch, push, mergeHead)
+
+	for i, branch := range branches {
+		sm.printer.Println("Branch:", color.Yellow(branch))
+		sm.printer.Println("\tCheckout...")
+		err = sm.checkout(branch)
+		if err != nil {
+			return err
+		}
+
+		sm.printer.Println("\tPull...")
+		err = sm.pullBranch()
+		if err != nil {
+			return err
+		}
+
+		if i == 0 {
+			err = sm.syncFirstBranch(branch, push, withMainBranch)
+			if err != nil {
+				return err
+			}
+			continue
+		}
+
+		parentBranch := branches[i-1]
+		sm.printer.Println("\tMerging", color.Yellow(parentBranch))
+		err = sm.merge(branch, parentBranch)
+		if err != nil {
+			return err
+		}
+		if push {
+			err = sm.pushBranch()
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return sm.checkout(checkoutBranchEnd)
+}
+
+func (sm StacksManager) syncFirstBranch(firstBranch string, push bool, withMainBranch bool) error {
+	if withMainBranch {
+		mainBranch, err := sm.mainBranchWithRemote()
+		if err != nil {
+			return err
+		}
+		err = sm.merge(firstBranch, mainBranch)
+		if err != nil {
+			return err
+		}
+	}
+
+	if push {
+		return sm.pushBranch()
+	}
+	return nil
 }

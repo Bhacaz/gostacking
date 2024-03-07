@@ -50,12 +50,12 @@ func (sm StacksManager) fetch() error {
 	return nil
 }
 
-func (sm StacksManager) gitClean() bool {
+func (sm StacksManager) unstagedChanges() bool {
 	output, err := sm.gitExecutor.Exec("status", "--porcelain")
 	if err != nil {
-		return false
+		return true
 	}
-	return len(output) == 0
+	return len(output) != 0
 }
 
 func (sm StacksManager) mainBranchWithRemote() (string, error) {
