@@ -17,7 +17,7 @@ var newCmd = &cobra.Command{
 The current branch will be added to the new stack.`,
 	Args: cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return stack.NewManager().CreateStack(args[0])
+		return stack.NewManager(Verbose).CreateStack(args[0])
 	},
 }
 

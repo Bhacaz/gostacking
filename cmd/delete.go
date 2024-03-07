@@ -13,7 +13,7 @@ var deleteCmd = &cobra.Command{
 	Use:   "delete [stack]",
 	Short: "Delete a gostacking",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return stack.NewManager().Delete(args[0])
+		return stack.NewManager(Verbose).Delete(args[0])
 	},
 }
 

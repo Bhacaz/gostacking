@@ -18,9 +18,9 @@ If a name is given, remove the branch by its name.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var err error
 		if n, err := strconv.Atoi(args[0]); err == nil {
-			err = stack.NewManager().RemoveByNumber(n)
+			err = stack.NewManager(Verbose).RemoveByNumber(n)
 		} else {
-			err = stack.NewManager().RemoveByName(args[0])
+			err = stack.NewManager(Verbose).RemoveByName(args[0])
 		}
 		return err
 	},

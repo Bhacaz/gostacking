@@ -20,16 +20,16 @@ If no argument is given, switch to the stack that contains the current branch.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var err error
 		if len(args) == 0 {
-			err = stack.NewManager().SwitchByName("")
+			err = stack.NewManager(Verbose).SwitchByName("")
 		} else if n, err := strconv.Atoi(args[0]); err == nil {
-			err = stack.NewManager().SwitchByNumber(n)
+			err = stack.NewManager(Verbose).SwitchByNumber(n)
 		} else {
-			err = stack.NewManager().SwitchByName(args[0])
+			err = stack.NewManager(Verbose).SwitchByName(args[0])
 		}
 		return err
 	},
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return stack.NewManager().ListStacksForCompletion(toComplete), cobra.ShellCompDirectiveNoFileComp
+		return stack.NewManager(Verbose).ListStacksForCompletion(toComplete), cobra.ShellCompDirectiveNoFileComp
 	},
 }
 

@@ -18,7 +18,7 @@ Branches out of sync with the previous branch are marked with a star (*).
 Add the --log flag to show the last commit log for each branch in the stack.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		showLogValue, _ := cmd.Flags().GetBool("log")
-		return stack.NewManager().CurrentStackStatus(showLogValue)
+		return stack.NewManager(Verbose).CurrentStackStatus(showLogValue)
 	},
 }
 

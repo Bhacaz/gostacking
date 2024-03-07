@@ -20,7 +20,7 @@ If no branch is given, add the current branch.`,
 		if len(args) > 0 {
 			branchName = args[0]
 		}
-		return stack.NewManager().AddBranch(branchName)
+		return stack.NewManager(Verbose).AddBranch(branchName)
 	},
 }
 

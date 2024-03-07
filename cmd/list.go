@@ -13,7 +13,7 @@ var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all stacks",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return stack.NewManager().List()
+		return stack.NewManager(Verbose).List()
 	},
 }
 
