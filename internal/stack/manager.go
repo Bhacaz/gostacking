@@ -25,11 +25,11 @@ func (sm StacksManager) load() StacksData {
 	return data
 }
 
-func NewManager(verbose bool) StacksManager {
+func NewManager(gitVerbose bool) StacksManager {
 	return StacksManager{
 		stacksPersister: StacksPersistingFile{},
 		printer:         printer.NewPrinter(),
-		gitExecutor:     git.NewExecutor(verbose),
+		gitExecutor:     git.NewExecutor(gitVerbose),
 	}
 }
 
