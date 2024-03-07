@@ -38,8 +38,6 @@ func (sm StacksManager) merge(currentBranch string, parentBranch string) error {
 	output, err := sm.gitExecutor.Exec(
 		"merge",
 		parentBranch,
-		"--no-squash",
-		"--commit",
 		"-m",
 		"Merge branch "+parentBranch+" into "+currentBranch+" (gostacking)",
 	)
