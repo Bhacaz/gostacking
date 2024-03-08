@@ -11,7 +11,7 @@ import (
 // deleteCmd represents the delete command
 var deleteCmd = &cobra.Command{
 	Use:   "delete [stack]",
-	Short: "Delete a gostacking",
+	Short: "Delete a gostacking by is name",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return stack.NewManager(Verbose).Delete(args[0])
 	},
