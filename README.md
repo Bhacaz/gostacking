@@ -131,5 +131,5 @@ goreleaser release --snapshot --clean
 - [ ] In `status` command add symbols:
   - `↑` when the branch is ahead the remote.
   - `↓` when the branch is behind the remote.
-  - `*` when the branch is out of sync with previous branch.
-  - `H` when the branch is out of sync with HEAD.
+  - `*` (red) when the branch is out of sync with previous branch.
+  - `*` (blue) when the first branch is out of sync with remote default branch.

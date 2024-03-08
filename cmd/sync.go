@@ -17,8 +17,8 @@ The current git status must be clean before running this command.
 Each branch will be pulled to prevent conflict with the remote.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		pushValue, _ := cmd.Flags().GetBool("push")
-		mergeHead, _ := cmd.Flags().GetBool("merge-head")
-		return stacksManager().Sync(pushValue, mergeHead)
+		mergeDefaultBranch, _ := cmd.Flags().GetBool("merge-default")
+		return stacksManager().Sync(pushValue, mergeDefaultBranch)
 	},
 }
 
@@ -35,5 +35,5 @@ func init() {
 	// is called directly, e.g.:
 	// syncCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	syncCmd.Flags().BoolP("push", "p", false, "Push commits after syncing.")
-	syncCmd.Flags().BoolP("merge-head", "m", false, "Merge the head branch into the first branch of the stack.")
+	syncCmd.Flags().BoolP("merge-default", "m", false, "Merge the default branch into the first branch of the stack.")
 }

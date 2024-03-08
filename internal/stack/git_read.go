@@ -58,7 +58,7 @@ func (sm StacksManager) unstagedChanges() bool {
 	return len(output) != 0
 }
 
-func (sm StacksManager) mainBranchWithRemote() (string, error) {
+func (sm StacksManager) defaultBranchWithRemote() (string, error) {
 	main, err := sm.gitExecutor.Exec("symbolic-ref", "refs/remotes/origin/HEAD", "--short")
 
 	if err != nil {
