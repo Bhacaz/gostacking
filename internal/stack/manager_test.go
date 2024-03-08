@@ -252,4 +252,71 @@ func TestSwitchByName(t *testing.T) {
 			t.Errorf("got %s, want %s", data.CurrentStack, "stack2")
 		}
 	})
+
+	t.Run("switch stack with empty args using currentBranchName", func(t *testing.T) {
+		gitExecutor := gitExecutorStub{
+			stubExec: func(command ...string) (string, error) {
+				return "branch3", nil
+			},
+		}
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(gitExecutor, &messageReceived)
+
+		result := stacksManager.SwitchByName("")
+		want := "Switched to stack " + color.Green("stack2")
+		if !strings.Contains(stacksManager.printerMessage(), want) {
+			t.Errorf("got \"%s\", want \"%s\"", stacksManager.printerMessage(), want)
+		}
+
+		if result != nil {
+			t.Errorf("show have no error, got %s", result)
+		}
+		data := *stacksManager.stacks
+		if stacksManager.stacks.CurrentStack != "stack2" {
+			t.Errorf("got %s, want %s", data.CurrentStack, "stack2")
+		}
+	})
+
+	t.Run("switch stack with empty args using currentBranchName and currentBranchName return error", func(t *testing.T) {
+		gitExecutor := gitExecutorStub{
+			stubExec: func(command ...string) (string, error) {
+				return "", fmt.Errorf("git command error")
+			},
+		}
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(gitExecutor, &messageReceived)
+
+		result := stacksManager.SwitchByName("")
+
+		if result == nil {
+			t.Errorf("got none, want Error")
+		}
+	})
+
+	t.Run("switch stack with empty args and no stack was found for the currentBranchName", func(t *testing.T) {
+		gitExecutor := gitExecutorStub{
+			stubExec: func(command ...string) (string, error) {
+				return "non_existing_branch", nil
+			},
+		}
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(gitExecutor, &messageReceived)
+
+		result := stacksManager.SwitchByName("")
+
+		if result == nil {
+			t.Errorf("got none, want Error")
+		}
+	})
+
+	t.Run("switch stack by name when stack does not exist", func(t *testing.T) {
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(nil, &messageReceived)
+
+		result := stacksManager.SwitchByName("non_existing_stack")
+
+		if result == nil {
+			t.Errorf("show have no error, got %s", result)
+		}
+	})
 }

@@ -18,7 +18,9 @@ type StacksManager struct {
 
 func NewManager(gitVerbose bool) StacksManager {
 	return StacksManager{
-		stacks:      &StacksData{},
+		stacks: &StacksData{
+			StacksPersister: StacksPersistingFile{},
+		},
 		printer:     printer.NewPrinter(),
 		gitExecutor: git.NewExecutor(gitVerbose),
 	}
@@ -152,12 +154,12 @@ func (sm StacksManager) SwitchByName(stackName string) error {
 		}
 	} else {
 		stack, err = sm.stacks.GetStackByName(stackName)
+		fmt.Println(stack, err)
 		if err != nil {
 			return err
 		}
 	}
-	sm.stacks.CurrentStack = stack.Name
-	sm.stacks.SaveStacks()
+	sm.stacks.SetCurrentStack(stack.Name)
 	sm.printer.Println("Switched to stack", color.Green(stack.Name))
 	return nil
 }

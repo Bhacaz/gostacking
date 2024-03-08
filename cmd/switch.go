@@ -21,7 +21,7 @@ If no argument is given, switch to the stack that contains the current branch.`,
 		var err error
 		if len(args) == 0 {
 			err = stack.NewManager(Verbose).SwitchByName("")
-		} else if n, err := strconv.Atoi(args[0]); err == nil {
+		} else if n, parseErr := strconv.Atoi(args[0]); parseErr == nil {
 			err = stack.NewManager(Verbose).SwitchByNumber(n)
 		} else {
 			err = stack.NewManager(Verbose).SwitchByName(args[0])
