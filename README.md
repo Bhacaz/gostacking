@@ -133,3 +133,4 @@ goreleaser release --snapshot --clean
   - `↓` when the branch is behind the remote.
   - `*` (red) when the branch is out of sync with previous branch.
   - `*` (blue) when the first branch is out of sync with remote default branch.
+- [ ] New `tree` command to display the stack as a tree. `git log --left-right --graph --cherry-pick --oneline feature...master`
