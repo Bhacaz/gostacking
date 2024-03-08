@@ -1,12 +1,7 @@
 package stack
 
-import (
-	"reflect"
-	// "testing"
-)
-
-func stacksDataMock() StacksData {
-	return StacksData{
+func stacksDataMock() *StacksData {
+	return &StacksData{
 		CurrentStack: "stack1",
 		Stacks: []Stack{
 			Stack{
@@ -18,22 +13,22 @@ func stacksDataMock() StacksData {
 				Branches: []string{"branch3", "branch4"},
 			},
 		},
+		StacksPersister: StacksPersistingStub{},
 	}
 }
 
 type StacksPersistingStub struct {
-	data StacksData
+	Data *StacksData
 }
 
-func (s *StacksPersistingStub) LoadStacks() (StacksData, error) {
-	if reflect.ValueOf(s.data).IsZero() {
-		s.data = stacksDataMock()
-	}
-	return s.data, nil
+func (s StacksPersistingStub) LoadStacks(data *StacksData) {
+	//if reflect.ValueOf(s.Data).IsZero() {
+	//	s.Data = data
+	//}
 }
 
-func (s *StacksPersistingStub) SaveStacks(data StacksData) {
-	s.data = data
+func (s StacksPersistingStub) SaveStacks(data StacksData) {
+	//s.Data = &data
 }
 
 // func TestLoadStacks(t *testing.T) {

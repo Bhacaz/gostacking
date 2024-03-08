@@ -6,30 +6,21 @@ import (
 	"github.com/Bhacaz/gostacking/internal/color"
 	"github.com/Bhacaz/gostacking/internal/git"
 	"github.com/Bhacaz/gostacking/internal/printer"
-	"log"
 	"slices"
 	"strings"
 )
 
 type StacksManager struct {
-	stacksPersister StacksPersisting
-	gitExecutor     git.InterfaceGitExecutor
-	printer         printer.Printer
-}
-
-func (sm StacksManager) load() StacksData {
-	data, err := sm.stacksPersister.LoadStacks()
-	if err != nil {
-		log.Fatalf(err.Error())
-	}
-	return data
+	stacks      *StacksData
+	gitExecutor git.InterfaceGitExecutor
+	printer     printer.Printer
 }
 
 func NewManager(gitVerbose bool) StacksManager {
 	return StacksManager{
-		stacksPersister: StacksPersistingFile{},
-		printer:         printer.NewPrinter(),
-		gitExecutor:     git.NewExecutor(gitVerbose),
+		stacks:      &StacksData{},
+		printer:     printer.NewPrinter(),
+		gitExecutor: git.NewExecutor(gitVerbose),
 	}
 }
 
@@ -44,11 +35,10 @@ func (sm StacksManager) CreateStack(stackName string) error {
 		Branches: []string{currentBranch},
 	}
 
-	data := sm.load()
-	data.CurrentStack = stackName
-	data.Stacks = append(data.Stacks, newStack)
-
-	sm.stacksPersister.SaveStacks(data)
+	sm.stacks.LoadStacks()
+	sm.stacks.CurrentStack = stackName
+	sm.stacks.Stacks = append(sm.stacks.Stacks, newStack)
+	sm.stacks.SaveStacks()
 	sm.printer.Println("Stack created", color.Green(stackName))
 	return nil
 }
@@ -57,7 +47,8 @@ func (sm StacksManager) CreateStack(stackName string) error {
 // 1. Behind remote
 // 2. Has diff with previous branch
 func (sm StacksManager) CurrentStackStatus(showLog bool) error {
-	data := sm.load()
+	sm.stacks.LoadStacks()
+	data := *sm.stacks
 	err := sm.fetch()
 	if err != nil {
 		return err
@@ -112,17 +103,19 @@ func (sm StacksManager) AddBranch(branchName string) error {
 		}
 	}
 
-	data := sm.load()
+	sm.stacks.LoadStacks()
+	data := *sm.stacks
 	stack, _ := data.GetStackByName(data.CurrentStack)
 	stack.Branches = append(stack.Branches, branchName)
 	stack.Branches = slices.Compact(stack.Branches)
-	sm.stacksPersister.SaveStacks(data)
+	data.SaveStacks()
 	sm.printer.Println("Branch", color.Yellow(branchName), "added to", color.Green(data.CurrentStack))
 	return nil
 }
 
 func (sm StacksManager) List() error {
-	data := sm.load()
+	sm.stacks.LoadStacks()
+	data := *sm.stacks
 	sm.printer.Println("Current stack:", color.Green(data.CurrentStack))
 	for i, stack := range data.Stacks {
 		sm.printer.Println(
@@ -133,7 +126,8 @@ func (sm StacksManager) List() error {
 }
 
 func (sm StacksManager) ListStacksForCompletion(toComplete string) []string {
-	data := sm.load()
+	sm.stacks.LoadStacks()
+	data := *sm.stacks
 	var stacks []string
 	for _, stack := range data.Stacks {
 		if toComplete == "" || strings.HasPrefix(stack.Name, toComplete) {
@@ -144,7 +138,7 @@ func (sm StacksManager) ListStacksForCompletion(toComplete string) []string {
 }
 
 func (sm StacksManager) SwitchByName(stackName string) error {
-	data := sm.load()
+	sm.stacks.LoadStacks()
 	var stack *Stack
 	var err error
 	if stackName == "" {
@@ -152,32 +146,35 @@ func (sm StacksManager) SwitchByName(stackName string) error {
 		if err != nil {
 			return err
 		}
-		stack, err = data.GetStackByBranch(currentBranchName)
+		stack, err = sm.stacks.GetStackByBranch(currentBranchName)
 		if err != nil {
 			return err
 		}
 	} else {
-		stack, err = data.GetStackByName(stackName)
+		stack, err = sm.stacks.GetStackByName(stackName)
 		if err != nil {
 			return err
 		}
 	}
-	data.SetCurrentStack(stack.Name)
+	sm.stacks.CurrentStack = stack.Name
+	sm.stacks.SaveStacks()
 	sm.printer.Println("Switched to stack", color.Green(stack.Name))
 	return nil
 }
 
 func (sm StacksManager) SwitchByNumber(number int) error {
-	data := sm.load()
+	sm.stacks.LoadStacks()
+	data := *sm.stacks
 	stack := data.Stacks[number-1]
 	data.CurrentStack = stack.Name
-	sm.stacksPersister.SaveStacks(data)
+	data.SaveStacks()
 	sm.printer.Println("Switched to stack", color.Green(stack.Name))
 	return nil
 }
 
 func (sm StacksManager) RemoveByName(branchName string) error {
-	data := sm.load()
+	sm.stacks.LoadStacks()
+	data := *sm.stacks
 	stack, _ := data.GetStackByName(data.CurrentStack)
 	var filteredBranches []string
 	for _, branch := range stack.Branches {
@@ -191,13 +188,14 @@ func (sm StacksManager) RemoveByName(branchName string) error {
 	}
 
 	stack.Branches = filteredBranches
-	sm.stacksPersister.SaveStacks(data)
+	data.SaveStacks()
 	sm.printer.Println("Branch", color.Yellow(branchName), "removed from stack", color.Green(data.CurrentStack))
 	return nil
 }
 
 func (sm StacksManager) RemoveByNumber(number int) error {
-	data := sm.load()
+	sm.stacks.LoadStacks()
+	data := *sm.stacks
 	stack, _ := data.GetStackByName(data.CurrentStack)
 	if number < 1 || number > len(stack.Branches) {
 		return errors.New("invalid branch number")
@@ -205,13 +203,14 @@ func (sm StacksManager) RemoveByNumber(number int) error {
 
 	branchName := stack.Branches[number-1]
 	stack.Branches = append(stack.Branches[:number-1], stack.Branches[number:]...)
-	sm.stacksPersister.SaveStacks(data)
+	data.SaveStacks()
 	sm.printer.Println("Branch", color.Yellow(branchName), "removed from stack", color.Green(data.CurrentStack))
 	return nil
 }
 
 func (sm StacksManager) Delete(stackName string) error {
-	data := sm.load()
+	sm.stacks.LoadStacks()
+	data := *sm.stacks
 	var filteredStacks []Stack
 	for _, stack := range data.Stacks {
 		if stack.Name != stackName {
@@ -233,7 +232,7 @@ func (sm StacksManager) Delete(stackName string) error {
 	}
 	data.CurrentStack = newCurrentStack
 
-	sm.stacksPersister.SaveStacks(data)
+	data.SaveStacks()
 	sm.printer.Println("Stack", color.Green(stackName), "deleted")
 	return nil
 }
@@ -247,7 +246,8 @@ func (sm StacksManager) CheckoutByName(branchName string) error {
 }
 
 func (sm StacksManager) CheckoutByNumber(number int) error {
-	data := sm.load()
+	sm.stacks.LoadStacks()
+	data := *sm.stacks
 	branches, _ := data.GetBranchesByName(data.CurrentStack)
 	if number < 1 || number > len(branches) {
 		return errors.New("invalid branch number")
@@ -257,7 +257,8 @@ func (sm StacksManager) CheckoutByNumber(number int) error {
 }
 
 func (sm StacksManager) Sync(push bool, withMainBranch bool) error {
-	data := sm.load()
+	sm.stacks.LoadStacks()
+	data := *sm.stacks
 	checkoutBranchEnd, err := sm.currentBranchName()
 	if err != nil {
 		return err

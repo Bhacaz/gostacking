@@ -36,8 +36,8 @@ func (sm StacksManager) printerMessage() string {
 
 func StacksManagerForTest(gitExecutor git.InterfaceGitExecutor, messageReceived *[]string) StacksManager {
 	return StacksManager{
-		stacksPersister: &StacksPersistingStub{},
-		gitExecutor:     gitExecutor,
+		stacks:      stacksDataMock(),
+		gitExecutor: gitExecutor,
 		printer: PrinterStub{
 			MessageReceived: messageReceived,
 		},
@@ -55,7 +55,8 @@ func TestCreateStack(t *testing.T) {
 		stacksManager := StacksManagerForTest(gitExecutor, &messageReceived)
 
 		result := stacksManager.CreateStack("stack3")
-		data, _ := stacksManager.stacksPersister.LoadStacks()
+		stacksManager.stacks.LoadStacks()
+		data := *stacksManager.stacks
 
 		// Add stack3 to the list of stacks
 		if data.Stacks[2].Name != "stack3" {
@@ -246,8 +247,8 @@ func TestSwitchByName(t *testing.T) {
 		if result != nil {
 			t.Errorf("show have no error, got %s", result)
 		}
-		data, _ := stacksManager.stacksPersister.LoadStacks()
-		if data.CurrentStack != "stack2" {
+		data := *stacksManager.stacks
+		if stacksManager.stacks.CurrentStack != "stack2" {
 			t.Errorf("got %s, want %s", data.CurrentStack, "stack2")
 		}
 	})
