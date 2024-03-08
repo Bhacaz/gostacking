@@ -242,10 +242,6 @@ func (sm StacksManager) Delete(stackName string) error {
 }
 
 func (sm StacksManager) CheckoutByName(branchName string) error {
-	if !sm.branchExists(branchName) {
-		return errors.New("branch does not exist")
-	}
-
 	return sm.checkout(branchName)
 }
 

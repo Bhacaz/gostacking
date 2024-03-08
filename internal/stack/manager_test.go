@@ -784,46 +784,12 @@ func TestStacksManager_CheckoutByName(t *testing.T) {
 
 		err := stacksManager.CheckoutByName("branch1")
 
-		if gitCommandsReceived[0] != "rev-parse --verify branch1" {
-			t.Errorf("got %s, want %s", gitCommandsReceived[0], "rev-parse --verify branch1")
-		}
-
-		if gitCommandsReceived[1] != "checkout branch1" {
+		if gitCommandsReceived[0] != "checkout branch1" {
 			t.Errorf("got %s, want %s", gitCommandsReceived[1], "checkout branch1")
 		}
 
 		if err != nil {
 			t.Errorf("show have no error, got %s", err)
-		}
-	})
-
-	t.Run("when branch does not exist", func(t *testing.T) {
-		var gitCommandsReceived []string
-
-		gitExecutor := gitExecutorStub{
-			stubExec: func(command ...string) (string, error) {
-				switch strings.Join(command, " ") {
-				case "rev-parse --verify non_existing_branch":
-					gitCommandsReceived = append(gitCommandsReceived, strings.Join(command, " "))
-					return "", fmt.Errorf("branch does not exist")
-				default:
-					t.Errorf("unwanted git command: %s", command)
-				}
-				return "", nil
-			},
-		}
-
-		var messageReceived []string
-		stacksManager := StacksManagerForTest(gitExecutor, &messageReceived)
-
-		err := stacksManager.CheckoutByName("non_existing_branch")
-
-		if gitCommandsReceived[0] != "rev-parse --verify non_existing_branch" {
-			t.Errorf("got %s, want %s", gitCommandsReceived[0], "rev-parse --verify non_existing_branch")
-		}
-
-		if err == nil {
-			t.Errorf("got none, want Error")
 		}
 	})
 
@@ -851,11 +817,7 @@ func TestStacksManager_CheckoutByName(t *testing.T) {
 
 		err := stacksManager.CheckoutByName("branch1")
 
-		if gitCommandsReceived[0] != "rev-parse --verify branch1" {
-			t.Errorf("got %s, want %s", gitCommandsReceived[0], "rev-parse --verify branch1")
-		}
-
-		if gitCommandsReceived[1] != "checkout branch1" {
+		if gitCommandsReceived[0] != "checkout branch1" {
 			t.Errorf("got %s, want %s", gitCommandsReceived[1], "checkout branch1")
 		}
 
