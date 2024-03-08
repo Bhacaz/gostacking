@@ -190,7 +190,8 @@ func (sm StacksManager) RemoveByName(branchName string) error {
 	}
 
 	if len(filteredBranches) == len(stack.Branches) {
-		return errors.New("Branch " + branchName + " does not exist")
+		sm.printer.Println("Branch", color.Yellow(branchName), "does not exist")
+		return nil
 	}
 
 	stack.Branches = filteredBranches
@@ -204,7 +205,8 @@ func (sm StacksManager) RemoveByNumber(number int) error {
 	data := *sm.stacks
 	stack, _ := data.GetStackByName(data.CurrentStack)
 	if number < 1 || number > len(stack.Branches) {
-		return errors.New("invalid branch number")
+		sm.printer.Println("Invalid branch number")
+		return nil
 	}
 
 	branchName := stack.Branches[number-1]

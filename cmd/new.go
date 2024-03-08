@@ -5,7 +5,6 @@ package cmd
 
 import (
 	"github.com/Bhacaz/gostacking/internal/stack"
-	// 	"fmt"
 	"github.com/spf13/cobra"
 )
 

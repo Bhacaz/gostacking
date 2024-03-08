@@ -663,8 +663,13 @@ func TestStacksManager_RemoveByName(t *testing.T) {
 
 		result := stacksManager.RemoveByName("non_existing_branch")
 
-		if result == nil {
-			t.Errorf("show have no error, got %s", result)
+		if result != nil {
+			t.Errorf("should have no error, got %s", result)
+		}
+
+		want := "Branch " + color.Yellow("non_existing_branch") + " does not exist"
+		if !strings.Contains(stacksManager.printerMessage(), want) {
+			t.Errorf("got \"%s\", want \"%s\"", stacksManager.printerMessage(), want)
 		}
 	})
 }
@@ -699,8 +704,12 @@ func TestStacksManager_StacksManager_RemoveByNumber(t *testing.T) {
 		stacksManager := StacksManagerForTest(nil, &messageReceived)
 
 		result := stacksManager.RemoveByNumber(3)
-		if result == nil {
+		if result != nil {
 			t.Errorf("got none, want Error")
+		}
+		want := "Invalid branch number"
+		if !strings.Contains(stacksManager.printerMessage(), want) {
+			t.Errorf("got \"%s\", want \"%s\"", stacksManager.printerMessage(), want)
 		}
 	})
 }
