@@ -4,7 +4,6 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"github.com/Bhacaz/gostacking/internal/stack"
 	"github.com/spf13/cobra"
 )
 
@@ -19,7 +18,7 @@ Each branch will be pulled to prevent conflict with the remote.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		pushValue, _ := cmd.Flags().GetBool("push")
 		mergeHead, _ := cmd.Flags().GetBool("merge-head")
-		return stack.NewManager(Verbose).Sync(pushValue, mergeHead)
+		return stacksManager().Sync(pushValue, mergeHead)
 	},
 }
 

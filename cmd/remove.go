@@ -4,7 +4,6 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"github.com/Bhacaz/gostacking/internal/stack"
 	"github.com/spf13/cobra"
 	"strconv"
 )
@@ -18,9 +17,9 @@ If a name is given, remove the branch by its name.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var err error
 		if n, errParse := strconv.Atoi(args[0]); errParse == nil {
-			err = stack.NewManager(Verbose).RemoveByNumber(n)
+			err = stacksManager().RemoveByNumber(n)
 		} else {
-			err = stack.NewManager(Verbose).RemoveByName(args[0])
+			err = stacksManager().RemoveByName(args[0])
 		}
 		return err
 	},

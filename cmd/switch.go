@@ -4,7 +4,6 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"github.com/Bhacaz/gostacking/internal/stack"
 	"github.com/spf13/cobra"
 	"strconv"
 )
@@ -20,16 +19,16 @@ If no argument is given, switch to the stack that contains the current branch.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var err error
 		if len(args) == 0 {
-			err = stack.NewManager(Verbose).SwitchByName("")
+			err = stacksManager().SwitchByName("")
 		} else if n, parseErr := strconv.Atoi(args[0]); parseErr == nil {
-			err = stack.NewManager(Verbose).SwitchByNumber(n)
+			err = stacksManager().SwitchByNumber(n)
 		} else {
-			err = stack.NewManager(Verbose).SwitchByName(args[0])
+			err = stacksManager().SwitchByName(args[0])
 		}
 		return err
 	},
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return stack.NewManager(Verbose).ListStacksForCompletion(toComplete), cobra.ShellCompDirectiveNoFileComp
+		return stacksManager().ListStacksForCompletion(toComplete), cobra.ShellCompDirectiveNoFileComp
 	},
 }
 

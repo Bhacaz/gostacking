@@ -4,7 +4,6 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"github.com/Bhacaz/gostacking/internal/stack"
 	"github.com/spf13/cobra"
 )
 
@@ -13,7 +12,7 @@ var deleteCmd = &cobra.Command{
 	Use:   "delete [stack]",
 	Short: "Delete a gostacking by is name",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return stack.NewManager(Verbose).Delete(args[0])
+		return stacksManager().Delete(args[0])
 	},
 }
 

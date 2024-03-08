@@ -4,7 +4,6 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"github.com/Bhacaz/gostacking/internal/stack"
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +17,7 @@ Branches out of sync with the previous branch are marked with a star (*).
 Add the --log flag to show the last commit log for each branch in the stack.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		showLogValue, _ := cmd.Flags().GetBool("log")
-		return stack.NewManager(Verbose).CurrentStackStatus(showLogValue)
+		return stacksManager().CurrentStackStatus(showLogValue)
 	},
 }
 

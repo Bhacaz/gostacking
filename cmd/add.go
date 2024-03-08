@@ -4,7 +4,6 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"github.com/Bhacaz/gostacking/internal/stack"
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +19,7 @@ If no branch is given, add the current branch.`,
 		if len(args) > 0 {
 			branchName = args[0]
 		}
-		return stack.NewManager(Verbose).AddBranch(branchName)
+		return stacksManager().AddBranch(branchName)
 	},
 }
 

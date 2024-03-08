@@ -4,7 +4,6 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"github.com/Bhacaz/gostacking/internal/stack"
 	"github.com/spf13/cobra"
 )
 
@@ -13,7 +12,7 @@ var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all stacks",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return stack.NewManager(Verbose).List()
+		return stacksManager().List()
 	},
 }
 

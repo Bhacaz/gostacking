@@ -4,7 +4,6 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"github.com/Bhacaz/gostacking/internal/stack"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +15,7 @@ var newCmd = &cobra.Command{
 The current branch will be added to the new stack.`,
 	Args: cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return stack.NewManager(Verbose).CreateStack(args[0])
+		return stacksManager().CreateStack(args[0])
 	},
 }
 
