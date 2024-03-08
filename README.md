@@ -133,5 +133,3 @@ goreleaser release --snapshot --clean
   - `↓` when the branch is behind the remote.
   - `*` when the branch is out of sync with previous branch.
   - `H` when the branch is out of sync with HEAD.
-- [ ] Change way prints works, stack.go should return string and cmd should print it.
-- [ ] Complete tests.

@@ -4,8 +4,6 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
-	"github.com/Bhacaz/gostacking/internal/stack"
 	"github.com/spf13/cobra"
 )
 
@@ -17,9 +15,9 @@ var statusCmd = &cobra.Command{
 Show the current stack and the current branch.
 Branches out of sync with the previous branch are marked with a star (*).
 Add the --log flag to show the last commit log for each branch in the stack.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		showLogValue, _ := cmd.Flags().GetBool("log")
-		fmt.Println(stack.Manager().CurrentStackStatus(showLogValue))
+		return stacksManager().CurrentStackStatus(showLogValue)
 	},
 }
 

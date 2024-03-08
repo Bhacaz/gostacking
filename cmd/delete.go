@@ -4,16 +4,15 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"github.com/Bhacaz/gostacking/internal/stack"
 	"github.com/spf13/cobra"
 )
 
 // deleteCmd represents the delete command
 var deleteCmd = &cobra.Command{
 	Use:   "delete [stack]",
-	Short: "Delete a gostacking",
-	Run: func(cmd *cobra.Command, args []string) {
-		stack.Manager().Delete(args[0])
+	Short: "Delete a gostacking by is name",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return stacksManager().Delete(args[0])
 	},
 }
 

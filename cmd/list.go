@@ -4,7 +4,6 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"github.com/Bhacaz/gostacking/internal/stack"
 	"github.com/spf13/cobra"
 )
 
@@ -12,8 +11,8 @@ import (
 var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all stacks",
-	Run: func(cmd *cobra.Command, args []string) {
-		stack.Manager().List()
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return stacksManager().List()
 	},
 }
 

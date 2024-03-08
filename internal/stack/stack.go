@@ -3,7 +3,7 @@ package stack
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
+	"log"
 	"os"
 	"slices"
 	"strings"
@@ -11,70 +11,63 @@ import (
 
 const stacksFile string = ".git/gostacking.json"
 
+type StacksPersisting interface {
+	LoadStacks(data *StacksData)
+	SaveStacks(data StacksData)
+}
+
 type Stack struct {
 	Name     string   `json:"name"`
 	Branches []string `json:"branches"`
 }
 
 type StacksData struct {
-	CurrentStack string  `json:"currentStack"`
-	Stacks       []Stack `json:"stacks"`
-}
-
-type StacksPersisting interface {
-	LoadStacks() (StacksData, error)
-	SaveStacks(StacksData)
+	CurrentStack    string           `json:"currentStack"`
+	Stacks          []Stack          `json:"stacks"`
+	StacksPersister StacksPersisting `json:"-"`
 }
 
 type StacksPersistingFile struct{}
 
-func (s StacksPersistingFile) LoadStacks() (StacksData, error) {
-	return loadStacksFromFile()
-}
-
-func (s StacksPersistingFile) SaveStacks(data StacksData) {
-	saveStacks(data)
-}
-
-func loadStacksFromFile() (StacksData, error) {
-	var data StacksData
-
+func (s StacksPersistingFile) LoadStacks(data *StacksData) {
 	jsonData, err := os.ReadFile(stacksFile)
 	// If the file does not exist, return an empty data
 	// Calling SaveStacks will create the file
 	if err != nil {
 		if strings.Contains(err.Error(), "no such file or directory") {
-			return data, nil
+			return
 		} else {
-			return data, err
+			log.Fatal("Error reading file:", err)
 		}
 	}
 
 	err = json.Unmarshal(jsonData, &data)
 	if err != nil {
-		return data, err
+		log.Fatal("Error unmarshaling JSON:", err)
 	}
-
-	return data, nil
 }
 
-func saveStacks(data StacksData) {
+func (s StacksPersistingFile) SaveStacks(data StacksData) {
 	jsonData, err := json.MarshalIndent(data, "", "    ")
 	if err != nil {
-		fmt.Println("Error marshaling JSON:", err)
-		return
+		log.Fatal("Error marshaling JSON:", err)
 	}
 
-	//     fmt.Println(string(jsonData))
-	// Write the JSON data to a file
 	err = os.WriteFile(stacksFile, jsonData, 0644)
 	if err != nil {
-		fmt.Println("Error writing to file:", err)
-		return
+		log.Fatal("Error writing to file:", err)
 	}
 }
 
-func (data StacksData) GetStackByName(stackName string) (*Stack, error) {
+func (data *StacksData) LoadStacks() {
+	data.StacksPersister.LoadStacks(data)
+}
+
+func (data *StacksData) SaveStacks() {
+	data.StacksPersister.SaveStacks(*data)
+}
+
+func (data *StacksData) GetStackByName(stackName string) (*Stack, error) {
 	for i, stack := range data.Stacks {
 		if stack.Name == stackName {
 			return &data.Stacks[i], nil
@@ -83,12 +76,7 @@ func (data StacksData) GetStackByName(stackName string) (*Stack, error) {
 	return &Stack{}, errors.New("Stack " + stackName + " not found")
 }
 
-func (data StacksData) GetBranchesByName(stackName string) ([]string, error) {
-	stack, _ := data.GetStackByName(stackName)
-	return stack.Branches, nil
-}
-
-func (data StacksData) GetStackByBranch(branchName string) (*Stack, error) {
+func (data *StacksData) GetStackByBranch(branchName string) (*Stack, error) {
 	for i, stack := range data.Stacks {
 		if slices.Contains(stack.Branches, branchName) {
 			return &data.Stacks[i], nil
@@ -97,7 +85,16 @@ func (data StacksData) GetStackByBranch(branchName string) (*Stack, error) {
 	return &Stack{}, errors.New("Branch " + branchName + " not found")
 }
 
-func (data StacksData) SetCurrentStack(stackName string) {
+func (data *StacksData) GetBranchesByName(stackName string) ([]string, error) {
+	stack, err := data.GetStackByName(stackName)
+	if err != nil {
+		return []string{}, err
+	}
+
+	return stack.Branches, nil
+}
+
+func (data *StacksData) SetCurrentStack(stackName string) {
 	data.CurrentStack = stackName
-	saveStacks(data)
+	data.SaveStacks()
 }

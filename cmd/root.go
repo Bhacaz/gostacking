@@ -4,10 +4,12 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"os"
-
+	"github.com/Bhacaz/gostacking/internal/stack"
 	"github.com/spf13/cobra"
+	"os"
 )
+
+var Verbose bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -36,9 +38,14 @@ func init() {
 	// will be global for your application.
 
 	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.gostacking.yaml)")
+	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "Display all Git commands run under the hood")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	// 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	rootCmd.CompletionOptions.HiddenDefaultCmd = true
+}
+
+func stacksManager() stack.StacksManager {
+	return stack.NewManager(Verbose)
 }
