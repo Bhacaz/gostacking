@@ -1202,7 +1202,7 @@ Branch: %s
 		}
 	})
 
-	t.Run("when sync with merge main branch", func(t *testing.T) {
+	t.Run("when sync with merge default branch", func(t *testing.T) {
 		gitExecutor := gitExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				if command[0] == "symbolic-ref" {

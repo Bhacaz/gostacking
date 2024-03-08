@@ -258,7 +258,7 @@ func (sm StacksManager) CheckoutByNumber(number int) error {
 	return sm.checkout(branches[number-1])
 }
 
-func (sm StacksManager) Sync(push bool, withMainBranch bool) error {
+func (sm StacksManager) Sync(push bool, mergeDefaultBranch bool) error {
 	sm.stacks.LoadStacks()
 	data := *sm.stacks
 	if sm.unstagedChanges() {
@@ -296,7 +296,7 @@ func (sm StacksManager) Sync(push bool, withMainBranch bool) error {
 		}
 
 		if i == 0 {
-			err = sm.syncFirstBranch(branch, push, withMainBranch)
+			err = sm.syncFirstBranch(branch, push, mergeDefaultBranch)
 			if err != nil {
 				return err
 			}
@@ -321,14 +321,14 @@ func (sm StacksManager) Sync(push bool, withMainBranch bool) error {
 	return sm.checkout(checkoutBranchEnd)
 }
 
-func (sm StacksManager) syncFirstBranch(firstBranch string, push bool, withMainBranch bool) error {
-	if withMainBranch {
-		mainBranch, err := sm.mainBranchWithRemote()
+func (sm StacksManager) syncFirstBranch(firstBranch string, push bool, mergeDefaultBranch bool) error {
+	if mergeDefaultBranch {
+		defaultBranch, err := sm.defaultBranchWithRemote()
 		if err != nil {
 			return err
 		}
-		sm.printer.Println("\tMerging", color.Yellow(mainBranch))
-		err = sm.merge(firstBranch, mainBranch)
+		sm.printer.Println("\tMerging", color.Yellow(defaultBranch))
+		err = sm.merge(firstBranch, defaultBranch)
 		if err != nil {
 			return err
 		}
