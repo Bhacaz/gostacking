@@ -70,7 +70,7 @@ func (sm StacksManager) CurrentStackStatus(showLog bool) error {
 			if !showStar {
 				hasDiff, err := sm.branchHasDiff(branches[i-1], branch)
 				if err != nil {
-					displayBranches += fmt.Sprintf("Could not get diff status for %s...%s\n%s", branches[i-1], branch, err.Error())
+					displayBranches += fmt.Sprintf(" Could not get diff status for %s...%s - %s", branches[i-1], branch, err.Error())
 				}
 				if hasDiff {
 					showStar = true
@@ -263,13 +263,14 @@ func (sm StacksManager) CheckoutByNumber(number int) error {
 func (sm StacksManager) Sync(push bool, withMainBranch bool) error {
 	sm.stacks.LoadStacks()
 	data := *sm.stacks
+	if sm.unstagedChanges() {
+		sm.printer.Println("Unstaged changes. Please commit or stash them")
+		return nil
+	}
+
 	checkoutBranchEnd, err := sm.currentBranchName()
 	if err != nil {
 		return err
-	}
-
-	if sm.unstagedChanges() {
-		return errors.New("unstaged changes. Please commit or stash them")
 	}
 
 	sm.printer.Println("Syncing", color.Green(data.CurrentStack))
@@ -281,7 +282,6 @@ func (sm StacksManager) Sync(push bool, withMainBranch bool) error {
 	}
 
 	branches, _ := data.GetBranchesByName(data.CurrentStack)
-	//sm.gitCommands.SyncBranches(branches, currentBranch, push, mergeHead)
 
 	for i, branch := range branches {
 		sm.printer.Println("Branch:", color.Yellow(branch))
@@ -312,6 +312,7 @@ func (sm StacksManager) Sync(push bool, withMainBranch bool) error {
 			return err
 		}
 		if push {
+			sm.printer.Println("\tPushing...")
 			err = sm.pushBranch()
 			if err != nil {
 				return err
@@ -328,6 +329,7 @@ func (sm StacksManager) syncFirstBranch(firstBranch string, push bool, withMainB
 		if err != nil {
 			return err
 		}
+		sm.printer.Println("\tMerging", color.Yellow(mainBranch))
 		err = sm.merge(firstBranch, mainBranch)
 		if err != nil {
 			return err
@@ -335,6 +337,7 @@ func (sm StacksManager) syncFirstBranch(firstBranch string, push bool, withMainB
 	}
 
 	if push {
+		sm.printer.Println("\tPushing...")
 		return sm.pushBranch()
 	}
 	return nil
