@@ -107,7 +107,8 @@ func (sm StacksManager) AddBranch(branchName string) error {
 		branchName = currentBranchName
 	} else {
 		if !sm.branchExists(branchName) {
-			return errors.New("Branch " + color.Yellow(branchName) + " does not exist")
+			sm.printer.Println("Branch " + color.Yellow(branchName) + " does not exist")
+			return nil
 		}
 	}
 
@@ -116,7 +117,7 @@ func (sm StacksManager) AddBranch(branchName string) error {
 	stack.Branches = append(stack.Branches, branchName)
 	stack.Branches = slices.Compact(stack.Branches)
 	sm.stacksPersister.SaveStacks(data)
-	sm.printer.Println("Branch", color.Yellow(branchName), "added to stack", color.Green(data.CurrentStack))
+	sm.printer.Println("Branch", color.Yellow(branchName), "added to", color.Green(data.CurrentStack))
 	return nil
 }
 
