@@ -7,9 +7,9 @@ import (
 )
 
 func (sm StacksManager) checkout(branchName string) error {
-	_, err := sm.gitExecutor.Exec("checkout", branchName)
+	output, err := sm.gitExecutor.Exec("checkout", branchName)
 	if err != nil {
-		return errors.New("failed to checkout " + color.Yellow(branchName))
+		return errors.New("failed to checkout " + color.Yellow(branchName) + "\n" + output)
 	}
 	return nil
 }

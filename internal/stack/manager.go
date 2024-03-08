@@ -166,10 +166,14 @@ func (sm StacksManager) SwitchByName(stackName string) error {
 
 func (sm StacksManager) SwitchByNumber(number int) error {
 	sm.stacks.LoadStacks()
-	data := *sm.stacks
-	stack := data.Stacks[number-1]
-	data.CurrentStack = stack.Name
-	data.SaveStacks()
+
+	if number < 1 || number > len(sm.stacks.Stacks) {
+		return errors.New("invalid stack number")
+	}
+
+	stack := sm.stacks.Stacks[number-1]
+	sm.stacks.SetCurrentStack(stack.Name)
+	sm.stacks.SaveStacks()
 	sm.printer.Println("Switched to stack", color.Green(stack.Name))
 	return nil
 }
@@ -191,7 +195,7 @@ func (sm StacksManager) RemoveByName(branchName string) error {
 
 	stack.Branches = filteredBranches
 	data.SaveStacks()
-	sm.printer.Println("Branch", color.Yellow(branchName), "removed from stack", color.Green(data.CurrentStack))
+	sm.printer.Println("Branch", color.Yellow(branchName), "removed from", color.Green(data.CurrentStack))
 	return nil
 }
 
@@ -212,29 +216,27 @@ func (sm StacksManager) RemoveByNumber(number int) error {
 
 func (sm StacksManager) Delete(stackName string) error {
 	sm.stacks.LoadStacks()
-	data := *sm.stacks
 	var filteredStacks []Stack
-	for _, stack := range data.Stacks {
+	for _, stack := range sm.stacks.Stacks {
 		if stack.Name != stackName {
 			filteredStacks = append(filteredStacks, stack)
 		}
 	}
 
-	if len(filteredStacks) == len(data.Stacks) {
+	if len(filteredStacks) == len(sm.stacks.Stacks) {
 		return errors.New("stack " + color.Green(stackName) + " does not exist")
 	}
 
-	data.Stacks = filteredStacks
+	sm.stacks.Stacks = filteredStacks
 
-	var newCurrentStack = data.CurrentStack
-	if len(filteredStacks) > 0 && data.CurrentStack == stackName {
-		newCurrentStack = data.Stacks[0].Name
+	var newCurrentStack = sm.stacks.CurrentStack
+	if len(filteredStacks) > 0 && sm.stacks.CurrentStack == stackName {
+		newCurrentStack = sm.stacks.Stacks[0].Name
 	} else if len(filteredStacks) == 0 {
 		newCurrentStack = ""
 	}
-	data.CurrentStack = newCurrentStack
 
-	data.SaveStacks()
+	sm.stacks.SetCurrentStack(newCurrentStack)
 	sm.printer.Println("Stack", color.Green(stackName), "deleted")
 	return nil
 }

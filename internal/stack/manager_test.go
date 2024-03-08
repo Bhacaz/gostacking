@@ -320,3 +320,267 @@ func TestSwitchByName(t *testing.T) {
 		}
 	})
 }
+
+func TestSwitchByNumber(t *testing.T) {
+	t.Run("switch stack by number", func(t *testing.T) {
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(nil, &messageReceived)
+
+		result := stacksManager.SwitchByNumber(2)
+		want := "Switched to stack " + color.Green("stack2")
+		if !strings.Contains(stacksManager.printerMessage(), want) {
+			t.Errorf("got \"%s\", want \"%s\"", stacksManager.printerMessage(), want)
+		}
+
+		if result != nil {
+			t.Errorf("show have no error, got %s", result)
+		}
+		data := *stacksManager.stacks
+		if stacksManager.stacks.CurrentStack != "stack2" {
+			t.Errorf("got %s, want %s", data.CurrentStack, "stack2")
+		}
+	})
+
+	t.Run("switch stack by number when number is invalid", func(t *testing.T) {
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(nil, &messageReceived)
+
+		result := stacksManager.SwitchByNumber(3)
+		if result == nil {
+			t.Errorf("got none, want Error")
+		}
+	})
+}
+
+func TestRemoveByName(t *testing.T) {
+	t.Run("remove branch by name", func(t *testing.T) {
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(nil, &messageReceived)
+
+		result := stacksManager.RemoveByName("branch1")
+		want := "Branch " + color.Yellow("branch1") + " removed from " + color.Green("stack1")
+		if !strings.Contains(stacksManager.printerMessage(), want) {
+			t.Errorf("got \"%s\", want \"%s\"", stacksManager.printerMessage(), want)
+		}
+
+		if result != nil {
+			t.Errorf("show have no error, got %s", result)
+		}
+		data := *stacksManager.stacks
+		got := len(data.Stacks[0].Branches)
+		if got != 1 {
+			t.Errorf("got %d, want %d", got, 1)
+		}
+
+		if data.Stacks[0].Branches[0] != "branch2" {
+			t.Errorf("got %s, want %s", data.Stacks[0].Branches[0], "branch2")
+		}
+	})
+
+	t.Run("remove branch by name when branch does not exist", func(t *testing.T) {
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(nil, &messageReceived)
+
+		result := stacksManager.RemoveByName("non_existing_branch")
+
+		if result == nil {
+			t.Errorf("show have no error, got %s", result)
+		}
+	})
+}
+
+func TestStacksManager_RemoveByNumber(t *testing.T) {
+	t.Run("remove branch by number", func(t *testing.T) {
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(nil, &messageReceived)
+
+		result := stacksManager.RemoveByNumber(1)
+		want := "Branch " + color.Yellow("branch1") + " removed from stack " + color.Green("stack1")
+		if !strings.Contains(stacksManager.printerMessage(), want) {
+			t.Errorf("got \"%s\", want \"%s\"", stacksManager.printerMessage(), want)
+		}
+
+		if result != nil {
+			t.Errorf("show have no error, got %s", result)
+		}
+		data := *stacksManager.stacks
+		got := len(data.Stacks[0].Branches)
+		if got != 1 {
+			t.Errorf("got %d, want %d", got, 1)
+		}
+
+		if data.Stacks[0].Branches[0] != "branch2" {
+			t.Errorf("got %s, want %s", data.Stacks[0].Branches[0], "branch2")
+		}
+	})
+
+	t.Run("remove branch by number when number is invalid", func(t *testing.T) {
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(nil, &messageReceived)
+
+		result := stacksManager.RemoveByNumber(3)
+		if result == nil {
+			t.Errorf("got none, want Error")
+		}
+	})
+}
+
+func TestStacksManager_Delete(t *testing.T) {
+	t.Run("delete stack", func(t *testing.T) {
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(nil, &messageReceived)
+
+		err := stacksManager.Delete("stack1")
+		want := "Stack " + color.Green("stack1") + " deleted"
+		if !strings.Contains(stacksManager.printerMessage(), want) {
+			t.Errorf("got \"%s\", want \"%s\"", stacksManager.printerMessage(), want)
+		}
+
+		if err != nil {
+			t.Errorf("show have no error, got %s", err)
+		}
+		data := *stacksManager.stacks
+		got := len(data.Stacks)
+		if got != 1 {
+			t.Errorf("got %d, want %d", got, 1)
+		}
+	})
+
+	t.Run("delete stack when stack does not exist", func(t *testing.T) {
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(nil, &messageReceived)
+
+		result := stacksManager.Delete("non_existing_stack")
+
+		if result == nil {
+			t.Errorf("show have no error, got %s", result)
+		}
+	})
+
+	t.Run("delete the last stack", func(t *testing.T) {
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(nil, &messageReceived)
+
+		err := stacksManager.Delete("stack1")
+		err = stacksManager.Delete("stack2")
+		want := "Stack " + color.Green("stack2") + " deleted"
+		if !strings.Contains(stacksManager.printerMessage(), want) {
+			t.Errorf("got \"%s\", want \"%s\"", stacksManager.printerMessage(), want)
+		}
+
+		if err != nil {
+			t.Errorf("show have no error, got %s", err)
+		}
+		data := *stacksManager.stacks
+		got := len(data.Stacks)
+		if got != 0 {
+			t.Errorf("got %d, want %d", got, 0)
+		}
+	})
+}
+
+func TestStacksManager_CheckoutByName(t *testing.T) {
+	t.Run("checkout branch by name", func(t *testing.T) {
+		var gitCommandsReceived []string
+
+		gitExecutor := gitExecutorStub{
+			stubExec: func(command ...string) (string, error) {
+				switch strings.Join(command, " ") {
+				case "checkout branch1":
+					gitCommandsReceived = append(gitCommandsReceived, strings.Join(command, " "))
+					return "Switched to branch branch1", nil
+				case "rev-parse --verify branch1":
+					gitCommandsReceived = append(gitCommandsReceived, strings.Join(command, " "))
+					return "", nil
+				default:
+					t.Errorf("unwanted git command: %s", command)
+				}
+				return "", nil
+			},
+		}
+
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(gitExecutor, &messageReceived)
+
+		err := stacksManager.CheckoutByName("branch1")
+
+		if gitCommandsReceived[0] != "rev-parse --verify branch1" {
+			t.Errorf("got %s, want %s", gitCommandsReceived[0], "rev-parse --verify branch1")
+		}
+
+		if gitCommandsReceived[1] != "checkout branch1" {
+			t.Errorf("got %s, want %s", gitCommandsReceived[1], "checkout branch1")
+		}
+
+		if err != nil {
+			t.Errorf("show have no error, got %s", err)
+		}
+	})
+
+	t.Run("when branch does not exist", func(t *testing.T) {
+		var gitCommandsReceived []string
+
+		gitExecutor := gitExecutorStub{
+			stubExec: func(command ...string) (string, error) {
+				switch strings.Join(command, " ") {
+				case "rev-parse --verify non_existing_branch":
+					gitCommandsReceived = append(gitCommandsReceived, strings.Join(command, " "))
+					return "", fmt.Errorf("branch does not exist")
+				default:
+					t.Errorf("unwanted git command: %s", command)
+				}
+				return "", nil
+			},
+		}
+
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(gitExecutor, &messageReceived)
+
+		err := stacksManager.CheckoutByName("non_existing_branch")
+
+		if gitCommandsReceived[0] != "rev-parse --verify non_existing_branch" {
+			t.Errorf("got %s, want %s", gitCommandsReceived[0], "rev-parse --verify non_existing_branch")
+		}
+
+		if err == nil {
+			t.Errorf("got none, want Error")
+		}
+	})
+
+	t.Run("when checkout return an error", func(t *testing.T) {
+		var gitCommandsReceived []string
+
+		gitExecutor := gitExecutorStub{
+			stubExec: func(command ...string) (string, error) {
+				switch strings.Join(command, " ") {
+				case "rev-parse --verify branch1":
+					gitCommandsReceived = append(gitCommandsReceived, strings.Join(command, " "))
+					return "", nil
+				case "checkout branch1":
+					gitCommandsReceived = append(gitCommandsReceived, strings.Join(command, " "))
+					return "", fmt.Errorf("checkout error")
+				default:
+					t.Errorf("unwanted git command: %s", command)
+				}
+				return "", nil
+			},
+		}
+
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(gitExecutor, &messageReceived)
+
+		err := stacksManager.CheckoutByName("branch1")
+
+		if gitCommandsReceived[0] != "rev-parse --verify branch1" {
+			t.Errorf("got %s, want %s", gitCommandsReceived[0], "rev-parse --verify branch1")
+		}
+
+		if gitCommandsReceived[1] != "checkout branch1" {
+			t.Errorf("got %s, want %s", gitCommandsReceived[1], "checkout branch1")
+		}
+
+		if err == nil {
+			t.Errorf("got none, want Error")
+		}
+	})
+}

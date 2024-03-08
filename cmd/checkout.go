@@ -18,7 +18,7 @@ If a number is given, checkout the branch by its number in the stack (see status
 If a name is given, checkout the branch by its name.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var err error
-		if n, err := strconv.Atoi(args[0]); err == nil {
+		if n, errParse := strconv.Atoi(args[0]); errParse == nil {
 			err = stack.NewManager(Verbose).CheckoutByNumber(n)
 		} else {
 			err = stack.NewManager(Verbose).CheckoutByName(args[0])
