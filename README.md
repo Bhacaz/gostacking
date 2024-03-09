@@ -127,21 +127,4 @@ goreleaser release --snapshot --clean
 ## TODOs
 
 - [ ] Add completion suggestion list of branches (with a max) to `add` **command**.
-- [ ] New `tree` command to display the stack as a tree. `git log --left-right --graph --cherry-pick --oneline feature...master`
-
-```
-# git log --no-merges --reverse --pretty=format:"%h %s - %an - %cr" spike__replicas...master
-branch1
-| 1234567 commit1
-| 1234567 commit2
-|\
-| branch2
-| | 1234567 commit3
-| | 1234567 commit4
-| |\
-| | branch3
-| | | 1234567 commit5
-| | | 1234567 commit6
-| | | 1234567 commit7
-| | | 1234567 commit8
-```
+- [ ] Add a command to publish a branch and open the right link to create a PR `github.com/repo/compare/branch1..branch2?expand=true`.
