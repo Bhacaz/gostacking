@@ -10,11 +10,11 @@ import (
 // publishCmd represents the publish command
 var publishCmd = &cobra.Command{
 	Use:   "publish",
-	Short: "Publish the current current branch and open a pull request",
-	Long: `Publish the current current branch and open a pull request.
+	Short: "Publish the current branch of the current stack and show the relative create pull request link.",
+	Long: `Publish the current branch of the current stack and show the relative create pull request link.
 
 Open a pull request base on the previous branch of the stack.
-Open GitHub in the browser if the remote is GitHub.`,
+Show the GitHub link if the remote is GitHub.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return stacksManager().Publish()
 	},
