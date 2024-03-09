@@ -44,6 +44,7 @@ delete      Delete a gostacking by is name
 help        Help about any command
 list        List all stacks
 new         Create a new gostacking
+publish     Publish the current branch of the current stack and show a create pull request link
 remove      Remove a branch from the current stack
 status      Get current stack
 switch      Change the current stack

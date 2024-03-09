@@ -10,7 +10,7 @@ import (
 // publishCmd represents the publish command
 var publishCmd = &cobra.Command{
 	Use:   "publish",
-	Short: "Publish the current branch of the current stack and show the relative create pull request link.",
+	Short: "Publish the current branch of the current stack and show a create pull request link",
 	Long: `Publish the current branch of the current stack and show the relative create pull request link.
 
 Open a pull request base on the previous branch of the stack.
