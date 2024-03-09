@@ -332,6 +332,45 @@ func (sm StacksManager) Sync(push bool, mergeDefaultBranch bool) error {
 	return sm.checkout(checkoutBranchEnd)
 }
 
+func (sm StacksManager) Tree() error {
+	//branchColorsSequence := []color.Color{
+	//	color.Yellow,
+	//	color.Green,
+	//	color.Magenta,
+	//	color.Purple,
+	//}
+
+	sm.stacks.LoadStacks()
+	branches, _ := sm.stacks.GetCurrentBranches()
+	sm.printer.Println("Current stack:", color.Green(sm.stacks.CurrentStack))
+	lastIndex := len(branches) - 1
+	treeOutput := ""
+	// prepend default branch to the list of branches
+	defaultBranch, err := sm.defaultBranchWithRemote()
+	if err != nil {
+		return err
+	}
+	branches = append([]string{defaultBranch}, branches...)
+
+	for i, branch := range branches {
+		if i == lastIndex {
+			treeOutput += branch + "\n"
+			continue
+		}
+
+		treeOutput += branches[i+1] + "\n"
+		commits, err := sm.commitsBetweenBranches(branch, branches[i+1])
+		if err != nil {
+			return err
+		}
+
+		for _, commit := range commits {
+			treeOutput += "|\t" + commit + "\n"
+		}
+	}
+	return nil
+}
+
 func (sm StacksManager) syncFirstBranch(firstBranch string, push bool, mergeDefaultBranch bool) error {
 	if mergeDefaultBranch {
 		defaultBranch, err := sm.defaultBranchWithRemote()
