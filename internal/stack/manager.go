@@ -333,17 +333,11 @@ func (sm StacksManager) Sync(push bool, mergeDefaultBranch bool) error {
 }
 
 func (sm StacksManager) Tree() error {
-	var branchColorsSequence []func(...interface{}) string
-	branchColorsSequence = append(branchColorsSequence, color.Green)
-	branchColorsSequence = append(branchColorsSequence, color.Teal)
-	branchColorsSequence = append(branchColorsSequence, color.Magenta)
-	branchColorsSequence = append(branchColorsSequence, color.Purple)
 
 	sm.stacks.LoadStacks()
 	branches, _ := sm.stacks.GetCurrentBranches()
 	sm.printer.Println("Current stack:", color.Green(sm.stacks.CurrentStack), "\n")
 	treeOutput := ""
-	// prepend default branch to the list of branches
 	defaultBranch, err := sm.defaultBranchWithRemote()
 	if err != nil {
 		return err
@@ -356,12 +350,13 @@ func (sm StacksManager) Tree() error {
 			continue
 		}
 
-		branchColor := branchColorsSequence[i%len(branchColorsSequence)]
+		branchColor := colorFunc(i)
 
 		if i == 0 {
 			treeOutput += branchColor(branches[i+1]) + "\n"
 		} else {
-			treeOutput += strings.Repeat("| ", i) + branchColor(branches[i+1]) + "\n"
+			//treeOutput += strings.Repeat("| ", i) + branchColor(branches[i+1]) + "\n"
+			treeOutput += pipesColors(i, false) + branchColor(branches[i+1]) + "\n"
 		}
 		commits, err := sm.commitsBetweenBranches(branch, branches[i+1])
 		if err != nil {
@@ -369,18 +364,42 @@ func (sm StacksManager) Tree() error {
 		}
 
 		for _, commit := range commits {
-			commitHash := color.LightYellow(strings.Split(commit, " ")[0])
+			commitHash := color.DarkYellow(strings.Split(commit, " ")[0])
 			restOfCommit := strings.Join(strings.Split(commit, " ")[1:], " ")
-			treeOutput += strings.Repeat("| ", i+1) + commitHash + " " + restOfCommit + "\n"
+			//treeOutput += strings.Repeat("| ", i+1) + commitHash + " " + restOfCommit + "\n"
+			treeOutput += pipesColors(i+1, false) + commitHash + " " + restOfCommit + "\n"
 		}
 
 		if i != lastIndex-1 {
-			treeOutput += strings.Repeat("|", i+1) + "\\\n"
+			//treeOutput += strings.Repeat("|", i+1) + "\\\n"
+			treeOutput += pipesColors(i+1, true)
 		}
-
 	}
 	sm.printer.Println(treeOutput)
 	return nil
+}
+
+func colorFunc(i int) func(...interface{}) string {
+	var branchColorsSequence []func(...interface{}) string
+	branchColorsSequence = append(branchColorsSequence, color.Teal)
+	branchColorsSequence = append(branchColorsSequence, color.Magenta)
+	branchColorsSequence = append(branchColorsSequence, color.Purple)
+	branchColorsSequence = append(branchColorsSequence, color.Green)
+
+	return branchColorsSequence[i%len(branchColorsSequence)]
+}
+
+func pipesColors(index int, withDivergence bool) string {
+	var result string
+	for i := 0; i < index; i++ {
+		colorF := colorFunc(i)
+		if i == 0 && withDivergence {
+			result += colorF("|\\\n")
+		} else {
+			result += colorF("| ")
+		}
+	}
+	return result
 }
 
 func (sm StacksManager) syncFirstBranch(firstBranch string, push bool, mergeDefaultBranch bool) error {
