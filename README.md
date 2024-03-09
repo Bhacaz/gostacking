@@ -126,11 +126,10 @@ goreleaser release --snapshot --clean
 
 ## TODOs
 
-- [ ] Add flag `--position` (`-p`) to `add` **command** to add a branch at a specific position.
-- [ ] Add completion suggestion list of branches (with a max) to `add` **command**.
 - [ ] In `status` command add symbols:
   - `↑` when the branch is ahead the remote.
   - `↓` when the branch is behind the remote.
   - `*` (red) when the branch is out of sync with previous branch.
   - `*` (blue) when the first branch is out of sync with remote default branch.
 - [ ] New `tree` command to display the stack as a tree. `git log --left-right --graph --cherry-pick --oneline feature...master`
+- [ ] Add completion suggestion list of branches (with a max) to `add` **command**.
