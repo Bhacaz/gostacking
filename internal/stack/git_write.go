@@ -46,3 +46,11 @@ func (sm StacksManager) merge(currentBranch string, parentBranch string) error {
 	}
 	return nil
 }
+
+func (sm StacksManager) publishBranch(branchName string) error {
+	output, err := sm.gitExecutor.Exec("push", "-u", "origin", branchName)
+	if err != nil {
+		return errors.New("failed to publish branch\n" + output)
+	}
+	return nil
+}
