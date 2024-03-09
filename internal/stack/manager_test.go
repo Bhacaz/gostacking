@@ -212,7 +212,7 @@ Branches:
 2. %s`,
 			color.Green("stack1"),
 			color.Yellow("branch1"),
-			color.Red("*"),
+			color.Teal("↓"),
 			color.Yellow("branch2"),
 		)
 
@@ -252,7 +252,7 @@ Branches:
 	log`,
 			color.Green("stack1"),
 			color.Yellow("branch1"),
-			color.Red("*"),
+			color.Teal("↓"),
 			color.Yellow("branch2"),
 		)
 
@@ -273,7 +273,7 @@ Branches:
 				if "diff --name-only branch1...origin/branch1" == joinedCommand {
 					return "", fmt.Errorf("git command error")
 				}
-				return "something", nil
+				return "", nil
 			},
 		}
 		var messageReceived []string

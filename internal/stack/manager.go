@@ -58,25 +58,27 @@ func (sm StacksManager) CurrentStackStatus(showLog bool) error {
 	var displayBranches string
 	branches, _ := data.GetBranchesByName(data.CurrentStack)
 	for i, branch := range branches {
-		var showStar = false
+		branchStatus := defaultBranchStatus()
+
 		if sm.isBehindRemote(branch) {
-			showStar = true
+			branchStatus.BehindRemote = true
+		}
+		if sm.aheadRemote(branch) {
+			branchStatus.AheadRemote = true
 		}
 
 		displayBranches += fmt.Sprintf("%d. "+color.Yellow(branch), i+1)
-		if i > 0 {
-			// Don't check diff if star is already shown
-			if !showStar {
-				hasDiff, _ := sm.branchHasDiff(branches[i-1], branch)
-				if hasDiff {
-					showStar = true
-				}
+		if i == 0 {
+			branchStatus.BehindDefaultBranch = sm.behindDefaultBranch(branch)
+		} else {
+			hasDiff, _ := sm.branchHasDiff(branches[i-1], branch)
+			if hasDiff {
+				branchStatus.HasDiff = true
 			}
 		}
 
-		if showStar {
-			displayBranches += " " + color.Red("*")
-		}
+		displayBranches += branchStatus.Symbols()
+
 		if showLog {
 			displayBranches += "\n\t" + sm.lastLog(branch)
 		}

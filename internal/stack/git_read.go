@@ -42,6 +42,27 @@ func (sm StacksManager) isBehindRemote(branch string) bool {
 	return len(output) > 0
 }
 
+func (sm StacksManager) aheadRemote(branch string) bool {
+	output, err := sm.gitExecutor.Exec("diff", "--name-only", "origin/"+branch+"..."+branch)
+	if err != nil {
+		return false
+	}
+	return len(output) > 0
+}
+
+func (sm StacksManager) behindDefaultBranch(branch string) bool {
+	defaultBranch, err := sm.defaultBranchWithRemote()
+	if err != nil {
+		return false
+	}
+
+	output, err := sm.gitExecutor.Exec("diff", "--name-only", branch+"..."+defaultBranch)
+	if err != nil {
+		return false
+	}
+	return len(output) > 0
+}
+
 func (sm StacksManager) fetch() error {
 	_, err := sm.gitExecutor.Exec("fetch")
 	if err != nil {
