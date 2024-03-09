@@ -165,7 +165,6 @@ func (sm StacksManager) SwitchByName(stackName string) error {
 		}
 	} else {
 		stack, err = sm.stacks.GetStackByName(stackName)
-		fmt.Println(stack, err)
 		if err != nil {
 			return err
 		}
