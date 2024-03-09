@@ -32,5 +32,8 @@ func (bs branchStatus) Symbols() string {
 	if bs.BehindDefaultBranch {
 		symbolsToDisplay += color.Magenta("*")
 	}
+	if symbolsToDisplay != "" {
+		return " " + symbolsToDisplay
+	}
 	return symbolsToDisplay
 }

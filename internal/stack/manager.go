@@ -77,7 +77,7 @@ func (sm StacksManager) CurrentStackStatus(showLog bool) error {
 			}
 		}
 
-		displayBranches += " " + branchStatus.Symbols()
+		displayBranches += branchStatus.Symbols()
 
 		if showLog {
 			displayBranches += "\n\t" + sm.lastLog(branch)
