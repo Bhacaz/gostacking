@@ -56,7 +56,7 @@ func (sm StacksManager) behindDefaultBranch(branch string) bool {
 		return false
 	}
 
-	output, err := sm.gitExecutor.Exec("diff", "--name-only", branch+"...origin/"+defaultBranch)
+	output, err := sm.gitExecutor.Exec("diff", "--name-only", branch+"..."+defaultBranch)
 	if err != nil {
 		return false
 	}

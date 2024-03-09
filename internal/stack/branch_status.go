@@ -1,5 +1,5 @@
 package stack
-// tmp
+
 import "github.com/Bhacaz/gostacking/internal/color"
 
 type branchStatus struct {

@@ -133,3 +133,5 @@ goreleaser release --snapshot --clean
   - `*` (blue) when the first branch is out of sync with remote default branch.
 - [ ] New `tree` command to display the stack as a tree. `git log --left-right --graph --cherry-pick --oneline feature...master`
 - [ ] Add completion suggestion list of branches (with a max) to `add` **command**.
+
+tmp
