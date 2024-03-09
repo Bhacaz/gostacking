@@ -6,7 +6,6 @@ import (
 	"github.com/Bhacaz/gostacking/internal/color"
 	"github.com/Bhacaz/gostacking/internal/git"
 	"github.com/Bhacaz/gostacking/internal/printer"
-	"slices"
 	"strings"
 )
 
@@ -68,10 +67,7 @@ func (sm StacksManager) CurrentStackStatus(showLog bool) error {
 		if i > 0 {
 			// Don't check diff if star is already shown
 			if !showStar {
-				hasDiff, err := sm.branchHasDiff(branches[i-1], branch)
-				if err != nil {
-					displayBranches += fmt.Sprintf(" Could not get diff status for %s...%s - %s", branches[i-1], branch, err.Error())
-				}
+				hasDiff, _ := sm.branchHasDiff(branches[i-1], branch)
 				if hasDiff {
 					showStar = true
 				}
@@ -91,7 +87,7 @@ func (sm StacksManager) CurrentStackStatus(showLog bool) error {
 	return nil
 }
 
-func (sm StacksManager) AddBranch(branchName string) error {
+func (sm StacksManager) AddBranch(branchName string, position int) error {
 	if branchName == "" {
 		currentBranchName, err := sm.currentBranchName()
 		if err != nil {
@@ -108,8 +104,21 @@ func (sm StacksManager) AddBranch(branchName string) error {
 	sm.stacks.LoadStacks()
 	data := *sm.stacks
 	stack, _ := data.GetStackByName(data.CurrentStack)
-	stack.Branches = append(stack.Branches, branchName)
-	stack.Branches = slices.Compact(stack.Branches)
+
+	if position == 0 || position > len(stack.Branches) {
+		stack.Branches = append(stack.Branches, branchName)
+	} else {
+		position--
+		newBranches := make([]string, 0, len(stack.Branches)+1)
+		for i, branch := range stack.Branches {
+			if i == position {
+				newBranches = append(newBranches, branchName)
+			}
+			newBranches = append(newBranches, branch)
+		}
+		stack.Branches = newBranches
+	}
+
 	data.SaveStacks()
 	sm.printer.Println("Branch", color.Yellow(branchName), "added to", color.Green(data.CurrentStack))
 	return nil
