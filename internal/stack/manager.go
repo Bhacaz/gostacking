@@ -343,7 +343,6 @@ func (sm StacksManager) Tree() error {
 	sm.stacks.LoadStacks()
 	branches, _ := sm.stacks.GetCurrentBranches()
 	sm.printer.Println("Current stack:", color.Green(sm.stacks.CurrentStack))
-	lastIndex := len(branches) - 1
 	treeOutput := ""
 	// prepend default branch to the list of branches
 	defaultBranch, err := sm.defaultBranchWithRemote()
@@ -351,23 +350,31 @@ func (sm StacksManager) Tree() error {
 		return err
 	}
 	branches = append([]string{defaultBranch}, branches...)
+	lastIndex := len(branches) - 1
 
 	for i, branch := range branches {
 		if i == lastIndex {
-			treeOutput += branch + "\n"
 			continue
 		}
 
-		treeOutput += branches[i+1] + "\n"
+		treeOutput += strings.Repeat("  ", i) + branches[i+1] + "\n"
 		commits, err := sm.commitsBetweenBranches(branch, branches[i+1])
 		if err != nil {
 			return err
 		}
 
 		for _, commit := range commits {
-			treeOutput += "|\t" + commit + "\n"
+			commitHash := color.LightYellow(strings.Split(commit, " ")[0])
+			restOfCommit := strings.Join(strings.Split(commit, " ")[1:], " ")
+			treeOutput += strings.Repeat("| ", i+1) + commitHash + " " + restOfCommit + "\n"
 		}
+
+		if i != lastIndex-1 {
+			treeOutput += strings.Repeat("|", i+1) + "\\\n"
+		}
+
 	}
+	sm.printer.Println(treeOutput)
 	return nil
 }
 
