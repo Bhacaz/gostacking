@@ -94,6 +94,10 @@ func (data *StacksData) GetBranchesByName(stackName string) ([]string, error) {
 	return stack.Branches, nil
 }
 
+func (data *StacksData) GetCurrentBranches() ([]string, error) {
+	return data.GetBranchesByName(data.CurrentStack)
+}
+
 func (data *StacksData) SetCurrentStack(stackName string) {
 	data.CurrentStack = stackName
 	data.SaveStacks()

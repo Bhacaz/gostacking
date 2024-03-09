@@ -3,6 +3,7 @@ package stack
 import (
 	"errors"
 	"github.com/Bhacaz/gostacking/internal/color"
+	"strings"
 )
 
 func (sm StacksManager) currentBranchName() (string, error) {
@@ -86,4 +87,12 @@ func (sm StacksManager) defaultBranchWithRemote() (string, error) {
 		return "", errors.New("Error getting origin default main branch:\n To set it try: " + color.Teal("git remote set-head origin <<main branch>>"))
 	}
 	return main, nil
+}
+
+func (sm StacksManager) commitsBetweenBranches(baseBranch string, nextBranch string) ([]string, error) {
+	output, err := sm.gitExecutor.Exec("log", "--no-merges", "--reverse", "--right-only", "--pretty=format:%h %s - %cr", baseBranch+"..."+nextBranch)
+	if err != nil {
+		return nil, errors.New("failed to get commits log\n" + output)
+	}
+	return strings.Split(output, "\n"), nil
 }

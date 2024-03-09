@@ -332,6 +332,50 @@ func (sm StacksManager) Sync(push bool, mergeDefaultBranch bool) error {
 	return sm.checkout(checkoutBranchEnd)
 }
 
+func (sm StacksManager) Tree() error {
+	sm.stacks.LoadStacks()
+	branches, _ := sm.stacks.GetCurrentBranches()
+
+	sm.printer.Println("Current stack:", color.Green(sm.stacks.CurrentStack), "\n")
+	treeOutput := ""
+	defaultBranch, err := sm.defaultBranchWithRemote()
+	if err != nil {
+		return err
+	}
+	branches = append([]string{defaultBranch}, branches...)
+	lastIndex := len(branches) - 1
+
+	for i, branch := range branches {
+		if i == lastIndex {
+			continue
+		}
+
+		branchColor := colorFunc(i)
+
+		if i == 0 {
+			treeOutput += branchColor("* "+branches[i+1]) + "\n"
+		} else {
+			treeOutput += pipesColors(i, false) + branchColor("* "+branches[i+1]) + "\n"
+		}
+		commits, err := sm.commitsBetweenBranches(branch, branches[i+1])
+		if err != nil {
+			return err
+		}
+
+		for _, commit := range commits {
+			commitHash := color.DarkYellow(strings.Split(commit, " ")[0])
+			restOfCommit := strings.Join(strings.Split(commit, " ")[1:], " ")
+			treeOutput += pipesColors(i+1, false) + commitHash + " " + restOfCommit + "\n"
+		}
+
+		if i != lastIndex-1 {
+			treeOutput += pipesColors(i+1, true)
+		}
+	}
+	sm.printer.Println(treeOutput)
+	return nil
+}
+
 func (sm StacksManager) syncFirstBranch(firstBranch string, push bool, mergeDefaultBranch bool) error {
 	if mergeDefaultBranch {
 		defaultBranch, err := sm.defaultBranchWithRemote()

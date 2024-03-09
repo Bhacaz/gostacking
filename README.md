@@ -40,7 +40,7 @@ $ gostacking [command]
 ```
 add         Add a branch to the current stack
 checkout    Checkout a branch from a stack
-delete      Delete a gostacking
+delete      Delete a gostacking by is name
 help        Help about any command
 list        List all stacks
 new         Create a new gostacking
@@ -48,6 +48,7 @@ remove      Remove a branch from the current stack
 status      Get current stack
 switch      Change the current stack
 sync        Merge all branches into the others
+tree        Show the stack tree without merged commits, starting from the default branch.
 ```
 
 ## Example
@@ -126,5 +127,5 @@ goreleaser release --snapshot --clean
 
 ## TODOs
 
-- [ ] New `tree` command to display the stack as a tree. `git log --left-right --graph --cherry-pick --oneline feature...master`
 - [ ] Add completion suggestion list of branches (with a max) to `add` **command**.
+- [ ] Add a command to publish a branch and open the right link to create a PR `github.com/repo/compare/branch1..branch2?expand=true`.

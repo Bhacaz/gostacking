@@ -1324,3 +1324,41 @@ Branch: %s
 		}
 	})
 }
+
+func TestStacksManager_Tree(t *testing.T) {
+	t.Run("tree", func(t *testing.T) {
+		gitExecutor := gitExecutorStub{
+			stubExec: func(command ...string) (string, error) {
+				return "abcdef Some commit message - 3 minutes ago", nil
+			},
+		}
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(gitExecutor, &messageReceived)
+
+		err := stacksManager.Tree()
+
+		if err != nil {
+			t.Errorf("show have no error, got %s", err)
+		}
+
+		want := fmt.Sprintf(
+			`Current stack: %s 
+
+%s
+%s Some commit message - 3 minutes ago
+%s%s
+%s Some commit message - 3 minutes ago
+
+`,
+			color.Green("stack1"),
+			color.Red("* branch1"),
+			color.Red("| ")+color.DarkYellow("abcdef"),
+			color.Red("|\\\n"),
+			color.Red("| ")+color.Purple("* branch2"),
+			color.Red("| ")+color.Purple("| ")+color.DarkYellow("abcdef"),
+		)
+		if !strings.Contains(stacksManager.printerMessage(), want) {
+			t.Errorf("got\n\"%s\"\nwant\n\"%s\"", stacksManager.printerMessage(), want)
+		}
+	})
+}
