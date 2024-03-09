@@ -128,6 +128,4 @@ goreleaser release --snapshot --clean
 ## TODOs
 
 - [ ] Add completion suggestion list of branches (with a max) to `add` **command**.
-- [ ] Add a command to publish a branch and open the right link to create a PR `github.com/repo/compare/branch1..branch2?expand=true`.
 - [ ] Highlight the current branch in the `status` command.
-- 

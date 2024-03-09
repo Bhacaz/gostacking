@@ -102,6 +102,11 @@ func (sm StacksManager) githubRepoUrl() (string, error) {
 	if err != nil {
 		return "", errors.New("failed to get remote url")
 	}
+
+	if !strings.Contains(remote, "github") {
+		return "", nil
+	}
+
 	if strings.HasPrefix(remote, "git@") {
 		remote = strings.Replace(remote, ":", "/", 1)
 		remote = strings.Replace(remote, "git@", "https://", 1)

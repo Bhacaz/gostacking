@@ -1362,3 +1362,104 @@ func TestStacksManager_Tree(t *testing.T) {
 		}
 	})
 }
+
+func TestStacksManager_Publish(t *testing.T) {
+	t.Run("publish current branch and first branch of the stack", func(t *testing.T) {
+		gitExecutor := gitExecutorStub{
+			stubExec: func(command ...string) (string, error) {
+				if command[0] == "remote" {
+					return "git@github.com:User/AwesomeRepo.git", nil
+				}
+				return "branch1", nil
+			},
+		}
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(gitExecutor, &messageReceived)
+
+		err := stacksManager.Publish()
+
+		if err != nil {
+			t.Errorf("show have no error, got %s", err)
+		}
+
+		want := "Publishing " +
+			color.Yellow("branch1") +
+			"..." +
+			"\nhttps://github.com/User/AwesomeRepo/compare/branch1?expand=1"
+		if !strings.Contains(stacksManager.printerMessage(), want) {
+			t.Errorf("got \"%s\", want \"%s\"", stacksManager.printerMessage(), want)
+		}
+	})
+
+	t.Run("when the current branch not part of the current stack", func(t *testing.T) {
+		gitExecutor := gitExecutorStub{
+			stubExec: func(command ...string) (string, error) {
+				return "invalid_branch", nil
+			},
+		}
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(gitExecutor, &messageReceived)
+
+		err := stacksManager.Publish()
+
+		if err == nil {
+			t.Errorf("got none, want Error")
+		}
+
+		want := "current branch " + color.Yellow("invalid_branch") + " is not part of the current stack " + color.Green("stack1")
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("got \"%s\", want \"%s\"", err.Error(), want)
+		}
+	})
+
+	t.Run("publish current branch and second branch of the stack", func(t *testing.T) {
+		gitExecutor := gitExecutorStub{
+			stubExec: func(command ...string) (string, error) {
+				if command[0] == "remote" {
+					return "git@github.com:User/AwesomeRepo.git", nil
+				}
+				return "branch2", nil
+			},
+		}
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(gitExecutor, &messageReceived)
+
+		err := stacksManager.Publish()
+
+		if err != nil {
+			t.Errorf("show have no error, got %s", err)
+		}
+
+		want := "Publishing " +
+			color.Yellow("branch2") +
+			"..." +
+			"\nhttps://github.com/User/AwesomeRepo/compare/branch1...branch2?expand=1"
+		if !strings.Contains(stacksManager.printerMessage(), want) {
+			t.Errorf("got \"%s\", want \"%s\"", stacksManager.printerMessage(), want)
+		}
+	})
+
+	t.Run("when the remote is not on GitHub", func(t *testing.T) {
+		gitExecutor := gitExecutorStub{
+			stubExec: func(command ...string) (string, error) {
+				if command[0] == "remote" {
+					return "git@gitlab.com:User/AwesomeRepo.git", nil
+				}
+				return "branch1", nil
+			},
+		}
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(gitExecutor, &messageReceived)
+
+		err := stacksManager.Publish()
+		if err != nil {
+			t.Errorf("show have no error, got %s", err)
+		}
+
+		want := "Publishing " +
+			color.Yellow("branch1") + "...\nRemote is not on GitHub. Sorry."
+		if !strings.Contains(stacksManager.printerMessage(), want) {
+			t.Errorf("got \"%s\", want \"%s\"", stacksManager.printerMessage(), want)
+		}
+	})
+}

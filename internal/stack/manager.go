@@ -390,7 +390,7 @@ func (sm StacksManager) Publish() error {
 		return errors.New(
 			"current branch " +
 				color.Yellow(currentBranch) +
-				" is not part if the current stack " +
+				" is not part of the current stack " +
 				color.Green(data.CurrentStack),
 		)
 	}
@@ -417,6 +417,11 @@ func (sm StacksManager) Publish() error {
 	githubRepoUrl, err := sm.githubRepoUrl()
 	if err != nil {
 		return err
+	}
+
+	if githubRepoUrl == "" {
+		sm.printer.Println("Remote is not on GitHub. Sorry.")
+		return nil
 	}
 
 	if previousBranch == "" {
