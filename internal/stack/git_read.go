@@ -90,7 +90,7 @@ func (sm StacksManager) defaultBranchWithRemote() (string, error) {
 }
 
 func (sm StacksManager) commitsBetweenBranches(baseBranch string, nextBranch string) ([]string, error) {
-	output, err := sm.gitExecutor.Exec("log", "--no-merges", "--reverse", "--pretty=format:%h %s - %cr", baseBranch+"..."+nextBranch)
+	output, err := sm.gitExecutor.Exec("log", "--no-merges", "--reverse", "--right-only", "--pretty=format:%h %s - %cr", baseBranch+"..."+nextBranch)
 	if err != nil {
 		return nil, errors.New("failed to get commits log\n" + output)
 	}
