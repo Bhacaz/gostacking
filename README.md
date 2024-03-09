@@ -44,6 +44,7 @@ delete      Delete a gostacking by is name
 help        Help about any command
 list        List all stacks
 new         Create a new gostacking
+publish     Publish the current branch of the current stack and show a create pull request link
 remove      Remove a branch from the current stack
 status      Get current stack
 switch      Change the current stack
@@ -128,4 +129,4 @@ goreleaser release --snapshot --clean
 ## TODOs
 
 - [ ] Add completion suggestion list of branches (with a max) to `add` **command**.
-- [ ] Add a command to publish a branch and open the right link to create a PR `github.com/repo/compare/branch1..branch2?expand=true`.
+- [ ] Highlight the current branch in the `status` command.

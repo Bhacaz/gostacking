@@ -6,6 +6,7 @@ import (
 	"github.com/Bhacaz/gostacking/internal/color"
 	"github.com/Bhacaz/gostacking/internal/git"
 	"github.com/Bhacaz/gostacking/internal/printer"
+	"slices"
 	"strings"
 )
 
@@ -372,6 +373,63 @@ func (sm StacksManager) Tree() error {
 		}
 	}
 	sm.printer.Println(treeOutput)
+	return nil
+}
+
+func (sm StacksManager) Publish() error {
+	sm.stacks.LoadStacks()
+	data := *sm.stacks
+
+	currentBranch, err := sm.currentBranchName()
+	if err != nil {
+		return err
+	}
+
+	branches, _ := data.GetBranchesByName(data.CurrentStack)
+	if !slices.Contains(branches, currentBranch) {
+		return errors.New(
+			"current branch " +
+				color.Yellow(currentBranch) +
+				" is not part of the current stack " +
+				color.Green(data.CurrentStack),
+		)
+	}
+
+	sm.printer.Println("Publishing", color.Yellow(currentBranch)+"...")
+	err = sm.publishBranch(currentBranch)
+	if err != nil {
+		return err
+	}
+
+	// Default previous branch
+	var previousBranch string
+
+	for i, branch := range branches {
+		if branch == currentBranch {
+			if i == 0 {
+				break
+			}
+			previousBranch = branches[i-1]
+			break
+		}
+	}
+
+	githubRepoUrl, err := sm.githubRepoUrl()
+	if err != nil {
+		return err
+	}
+
+	if githubRepoUrl == "" {
+		sm.printer.Println("Remote is not on GitHub. Sorry.")
+		return nil
+	}
+
+	if previousBranch == "" {
+		sm.printer.Println(githubRepoUrl + "/compare/" + currentBranch + "?expand=1")
+	} else {
+		sm.printer.Println(githubRepoUrl + "/compare/" + previousBranch + "..." + currentBranch + "?expand=1")
+	}
+
 	return nil
 }
 

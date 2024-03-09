@@ -96,3 +96,21 @@ func (sm StacksManager) commitsBetweenBranches(baseBranch string, nextBranch str
 	}
 	return strings.Split(output, "\n"), nil
 }
+
+func (sm StacksManager) githubRepoUrl() (string, error) {
+	remote, err := sm.gitExecutor.Exec("remote", "get-url", "origin")
+	if err != nil {
+		return "", errors.New("failed to get remote url")
+	}
+
+	if !strings.Contains(remote, "github") {
+		return "", nil
+	}
+
+	if strings.HasPrefix(remote, "git@") {
+		remote = strings.Replace(remote, ":", "/", 1)
+		remote = strings.Replace(remote, "git@", "https://", 1)
+	}
+	remote = strings.Replace(remote, ".git", "", 1)
+	return remote, nil
+}
