@@ -10,13 +10,10 @@ import (
 // treeCmd represents the tree command
 var treeCmd = &cobra.Command{
 	Use:   "tree",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Show the stack tree without merged commits, starting from the default branch.",
+	Long: `Show the stack tree without merged commits, starting from the default branch.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Allow to clearly see the stack and every important information about each branch.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return stacksManager().Tree()
 	},
