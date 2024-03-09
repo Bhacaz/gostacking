@@ -358,7 +358,7 @@ Branches:
 			`Current stack: %s
 Branches:
 1. %s
-2. %s Could not get diff status for branch1...branch2 - failed to get diff`,
+2. %s`,
 			color.Green("stack1"),
 			color.Yellow("branch1"),
 			color.Yellow("branch2"),
@@ -390,7 +390,7 @@ func TestStacksManager_AddBranch(t *testing.T) {
 		var messageReceived []string
 		stacksManager := StacksManagerForTest(gitExecutor, &messageReceived)
 
-		result := stacksManager.AddBranch("")
+		result := stacksManager.AddBranch("", 0)
 
 		want := "Branch " + color.Yellow("my_current_branch") + " added to " + color.Green("stack1")
 		got := stacksManager.printerMessage()
@@ -418,7 +418,7 @@ func TestStacksManager_AddBranch(t *testing.T) {
 		var messageReceived []string
 		stacksManager := StacksManagerForTest(gitExecutor, &messageReceived)
 
-		result := stacksManager.AddBranch("")
+		result := stacksManager.AddBranch("", 0)
 
 		if result == nil {
 			t.Errorf("got none, want Error")
@@ -441,7 +441,7 @@ func TestStacksManager_AddBranch(t *testing.T) {
 		var messageReceived []string
 		stacksManager := StacksManagerForTest(gitExecutor, &messageReceived)
 
-		result := stacksManager.AddBranch("my_branch")
+		result := stacksManager.AddBranch("my_branch", 0)
 
 		want := "Branch " + color.Yellow("my_branch") + " added to " + color.Green("stack1")
 		got := stacksManager.printerMessage()
@@ -470,7 +470,7 @@ func TestStacksManager_AddBranch(t *testing.T) {
 		var messageReceived []string
 		stacksManager := StacksManagerForTest(gitExecutor, &messageReceived)
 
-		result := stacksManager.AddBranch("non_existing_branch")
+		result := stacksManager.AddBranch("non_existing_branch", 0)
 		want := "Branch " + color.Yellow("non_existing_branch") + " does not exist"
 		got := stacksManager.printerMessage()
 		if !strings.Contains(got, want) {
@@ -479,6 +479,62 @@ func TestStacksManager_AddBranch(t *testing.T) {
 
 		if result != nil {
 			t.Errorf("show have no error, got %s", result)
+		}
+	})
+
+	t.Run("when passing position 1 to be the first branch", func(t *testing.T) {
+		gitExecutor := gitExecutorStub{
+			stubExec: func(command ...string) (string, error) {
+				return "", nil
+			},
+		}
+
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(gitExecutor, &messageReceived)
+
+		result := stacksManager.AddBranch("my_branch", 1)
+
+		want := "Branch " + color.Yellow("my_branch") + " added to " + color.Green("stack1")
+		got := stacksManager.printerMessage()
+		if !strings.Contains(got, want) {
+			t.Errorf("got \"%s\", want \"%s\"", got, want)
+		}
+
+		if result != nil {
+			t.Errorf("show have no error, got %s", result)
+		}
+
+		data := *stacksManager.stacks
+		if data.Stacks[0].Branches[0] != "my_branch" {
+			t.Errorf("got %s, want %s", data.Stacks[0].Branches[0], "my_branch")
+		}
+	})
+
+	t.Run("when passing position is greater then len of branches", func(t *testing.T) {
+		gitExecutor := gitExecutorStub{
+			stubExec: func(command ...string) (string, error) {
+				return "", nil
+			},
+		}
+
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(gitExecutor, &messageReceived)
+
+		result := stacksManager.AddBranch("my_branch", 100)
+
+		want := "Branch " + color.Yellow("my_branch") + " added to " + color.Green("stack1")
+		got := stacksManager.printerMessage()
+		if !strings.Contains(got, want) {
+			t.Errorf("got \"%s\", want \"%s\"", got, want)
+		}
+
+		if result != nil {
+			t.Errorf("show have no error, got %s", result)
+		}
+
+		data := *stacksManager.stacks
+		if data.Stacks[0].Branches[len(data.Stacks[0].Branches)-1] != "my_branch" {
+			t.Errorf("got %s, want %s", data.Stacks[0].Branches[0], "my_branch")
 		}
 	})
 }
@@ -1241,6 +1297,30 @@ Branch: %s
 		)
 		if !strings.Contains(stacksManager.printerMessage(), want) {
 			t.Errorf("got \"%s\", want \"%s\"", stacksManager.printerMessage(), want)
+		}
+	})
+
+	t.Run("when defaultBranchWithRemote return an error", func(t *testing.T) {
+		gitExecutor := gitExecutorStub{
+			stubExec: func(command ...string) (string, error) {
+				if command[0] == "symbolic-ref" {
+					return "", fmt.Errorf("symbolic-ref error")
+				}
+				return "", nil
+			},
+		}
+
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(gitExecutor, &messageReceived)
+
+		err := stacksManager.Sync(false, true)
+
+		if err == nil {
+			t.Errorf("should have error, got %s", err)
+		}
+		want := "To set it try:"
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("got \"%s\", want \"%s\"", err.Error(), want)
 		}
 	})
 }
