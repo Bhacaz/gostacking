@@ -151,6 +151,19 @@ func (sm StacksManager) ListStacksForCompletion(toComplete string) []string {
 	return stacks
 }
 
+func (sm StacksManager) ListBranchesForCompletion(toComplete string) []string {
+	sm.stacks.LoadStacks()
+	data := *sm.stacks
+	branches, _ := data.GetBranchesByName(data.CurrentStack)
+	var filteredBranches []string
+	for _, branch := range branches {
+		if toComplete == "" || strings.HasPrefix(branch, toComplete) {
+			filteredBranches = append(filteredBranches, branch)
+		}
+	}
+	return filteredBranches
+}
+
 func (sm StacksManager) SwitchByName(stackName string) error {
 	sm.stacks.LoadStacks()
 	var stack *Stack
