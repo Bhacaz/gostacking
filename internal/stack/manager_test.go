@@ -569,6 +569,30 @@ func TestStacksManager_ListStacksForCompletion(t *testing.T) {
 	})
 }
 
+func TestStacksManager_ListBranchesForCompletion(t *testing.T) {
+	t.Run("list branches for completion", func(t *testing.T) {
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(nil, &messageReceived)
+
+		result := stacksManager.ListBranchesForCompletion("br")
+		want := []string{"branch1", "branch2"}
+		if !reflect.DeepEqual(result, want) {
+			t.Errorf("got %s, want %s", result, want)
+		}
+	})
+
+	t.Run("list branches for completion with empty string", func(t *testing.T) {
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(nil, &messageReceived)
+
+		result := stacksManager.ListBranchesForCompletion("")
+		want := []string{"branch1", "branch2"}
+		if !reflect.DeepEqual(result, want) {
+			t.Errorf("got %s, want %s", result, want)
+		}
+	})
+}
+
 func TestStacksManager_SwitchByName(t *testing.T) {
 	t.Run("switch stack by name", func(t *testing.T) {
 		var messageReceived []string
