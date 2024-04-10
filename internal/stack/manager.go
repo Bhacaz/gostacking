@@ -91,6 +91,14 @@ func (sm StacksManager) CurrentStackStatus(showLog bool) error {
 }
 
 func (sm StacksManager) AddBranch(branchName string, position int) error {
+	sm.stacks.LoadStacks()
+	data := *sm.stacks
+
+	if data.CurrentStack == "" {
+		sm.printer.Println("No stack found, use `" + color.Magenta("gostacking new <stackname>") + "` to create a stack and add the current branch")
+		return nil
+	}
+
 	if branchName == "" {
 		currentBranchName, err := sm.currentBranchName()
 		if err != nil {
@@ -104,8 +112,6 @@ func (sm StacksManager) AddBranch(branchName string, position int) error {
 		}
 	}
 
-	sm.stacks.LoadStacks()
-	data := *sm.stacks
 	stack, _ := data.GetStackByName(data.CurrentStack)
 
 	if slices.Contains(stack.Branches, branchName) {

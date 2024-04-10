@@ -565,6 +565,29 @@ func TestStacksManager_AddBranch(t *testing.T) {
 			t.Errorf("got %d, want %d", len(data.Stacks[0].Branches), 2)
 		}
 	})
+
+	t.Run("when no current stack", func(t *testing.T) {
+		gitExecutor := gitExecutorStub{
+			stubExec: func(command ...string) (string, error) {
+				return "", nil
+			},
+		}
+
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(gitExecutor, &messageReceived)
+
+		stacksManager.stacks.CurrentStack = ""
+		result := stacksManager.AddBranch("branch1", 0)
+
+		if result != nil {
+			t.Errorf("got Error, want none")
+		}
+
+		want := "No stack found, use `" + color.Magenta("gostacking new <stackname>") + "` to create a stack and add the current branch"
+		if !strings.Contains(stacksManager.printerMessage(), want) {
+			t.Errorf("got \"%s\", want \"%s\"", stacksManager.printerMessage(), want)
+		}
+	})
 }
 
 func TestStacksManager_List(t *testing.T) {
