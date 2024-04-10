@@ -108,6 +108,11 @@ func (sm StacksManager) AddBranch(branchName string, position int) error {
 	data := *sm.stacks
 	stack, _ := data.GetStackByName(data.CurrentStack)
 
+	if slices.Contains(stack.Branches, branchName) {
+		sm.printer.Println("Branch", color.Yellow(branchName), "already in", color.Green(data.CurrentStack))
+		return nil
+	}
+
 	if position == 0 || position > len(stack.Branches) {
 		stack.Branches = append(stack.Branches, branchName)
 	} else {
