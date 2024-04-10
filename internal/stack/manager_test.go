@@ -537,6 +537,34 @@ func TestStacksManager_AddBranch(t *testing.T) {
 			t.Errorf("got %s, want %s", data.Stacks[0].Branches[0], "my_branch")
 		}
 	})
+
+	t.Run("when the branch is already in the stack", func(t *testing.T) {
+		gitExecutor := gitExecutorStub{
+			stubExec: func(command ...string) (string, error) {
+				return "", nil
+			},
+		}
+
+		var messageReceived []string
+		stacksManager := StacksManagerForTest(gitExecutor, &messageReceived)
+
+		result := stacksManager.AddBranch("branch1", 0)
+
+		want := "Branch " + color.Yellow("branch1") + " already in " + color.Green("stack1") + "\n"
+		got := stacksManager.printerMessage()
+		if !strings.Contains(got, want) {
+			t.Errorf("got \"%s\", want \"%s\"", got, want)
+		}
+
+		if result != nil {
+			t.Errorf("show have no error, got %s", result)
+		}
+
+		data := *stacksManager.stacks
+		if len(data.Stacks[0].Branches) != 2 {
+			t.Errorf("got %d, want %d", len(data.Stacks[0].Branches), 2)
+		}
+	})
 }
 
 func TestStacksManager_List(t *testing.T) {
