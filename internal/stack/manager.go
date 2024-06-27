@@ -462,6 +462,26 @@ func (sm StacksManager) PrChain() error {
 	if err != nil {
 		return err
 	}
+
+	sm.stacks.LoadStacks()
+	data := *sm.stacks
+	branches, _ := data.GetBranchesByName(data.CurrentStack)
+
+	defaultBranch, err := sm.defaultBranch()
+	if err != nil {
+		return err
+	}
+
+	sm.printer.Println(defaultBranch)
+	for _, branch := range branches {
+		prNumber, err := sm.ghPrNumber(branch)
+		if err != nil {
+			return err
+		}
+		
+		sm.printer.Println(prNumber)
+	}
+
 	return nil
 }
 

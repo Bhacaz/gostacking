@@ -17,3 +17,15 @@ func (sm StacksManager) ghCliConfigure() error {
 	}
 	return nil
 }
+
+func (sm StacksManager) ghPrNumber(branchName string) (string, error) {
+	var ghCliExecutor = cliexec.NewExecutor("gh", true)
+//	pr view <<branch name>> -q ".[\"number\"]" --json number
+	output, err := ghCliExecutor.Exec("pr", "view", branchName, "-q", "\".[\\\"number\\\"]\"", "--json", "number")
+
+	if err != nil {
+		return "", err
+	}
+
+	return output, nil
+}

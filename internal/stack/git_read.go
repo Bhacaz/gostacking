@@ -89,6 +89,15 @@ func (sm StacksManager) defaultBranchWithRemote() (string, error) {
 	return main, nil
 }
 
+func (sm StacksManager) defaultBranch() (string, error) {
+	branch, err := sm.defaultBranchWithRemote()
+	if err != nil {
+		return "", err
+	}
+
+	return strings.Replace(branch, "origin/", "", 1), nil
+}
+
 func (sm StacksManager) commitsBetweenBranches(baseBranch string, nextBranch string) ([]string, error) {
 	output, err := sm.gitExecutor.Exec("log", "--no-merges", "--reverse", "--right-only", "--pretty=format:%h %s - %cr", baseBranch+"..."+nextBranch)
 	if err != nil {
