@@ -472,16 +472,18 @@ func (sm StacksManager) PrChain() error {
 		return err
 	}
 
+	result := defaultBranch
+
 	sm.printer.Println(defaultBranch)
 	for _, branch := range branches {
 		prNumber, err := sm.ghPrNumber(branch)
 		if err != nil {
 			return err
 		}
-		
-		sm.printer.Println(prNumber)
+		result += fmt.Sprint(" <- ", "#", prNumber)
 	}
 
+	sm.printer.Println(result)
 	return nil
 }
 
