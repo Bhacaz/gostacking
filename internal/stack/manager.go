@@ -3,8 +3,8 @@ package stack
 import (
 	"errors"
 	"fmt"
+	"github.com/Bhacaz/gostacking/internal/cliexec"
 	"github.com/Bhacaz/gostacking/internal/color"
-	"github.com/Bhacaz/gostacking/internal/git"
 	"github.com/Bhacaz/gostacking/internal/printer"
 	"slices"
 	"strings"
@@ -12,7 +12,7 @@ import (
 
 type StacksManager struct {
 	stacks      *StacksData
-	gitExecutor git.InterfaceGitExecutor
+	gitExecutor cliexec.InterfaceCliExecutor
 	printer     printer.Printer
 }
 
@@ -22,7 +22,7 @@ func NewManager(gitVerbose bool) StacksManager {
 			StacksPersister: StacksPersistingFile{},
 		},
 		printer:     printer.NewPrinter(),
-		gitExecutor: git.NewExecutor(gitVerbose),
+		gitExecutor: cliexec.NewExecutor("git", gitVerbose),
 	}
 }
 

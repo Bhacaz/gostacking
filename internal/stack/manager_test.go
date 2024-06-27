@@ -2,8 +2,8 @@ package stack
 
 import (
 	"fmt"
+	"github.com/Bhacaz/gostacking/internal/cliexec"
 	"github.com/Bhacaz/gostacking/internal/color"
-	"github.com/Bhacaz/gostacking/internal/git"
 	"reflect"
 	"strings"
 	"testing"
@@ -34,7 +34,7 @@ func (sm StacksManager) printerMessage() string {
 	return strings.Join(*sm.printer.(PrinterStub).MessageReceived, "")
 }
 
-func StacksManagerForTest(gitExecutor git.InterfaceGitExecutor, messageReceived *[]string) StacksManager {
+func StacksManagerForTest(gitExecutor cliexec.InterfaceCliExecutor, messageReceived *[]string) StacksManager {
 	return StacksManager{
 		stacks:      stacksDataMock(),
 		gitExecutor: gitExecutor,

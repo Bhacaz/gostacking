@@ -1,4 +1,4 @@
-package git
+package cliexec
 
 import (
 	"github.com/Bhacaz/gostacking/internal/printer"
@@ -6,17 +6,19 @@ import (
 	"strings"
 )
 
-type InterfaceGitExecutor interface {
+type InterfaceCliExecutor interface {
 	Exec(command ...string) (string, error)
 }
 
 type Executor struct {
+	baseCliCmd string
 	verbose bool
 	printer printer.Printer
 }
 
-func NewExecutor(verbose bool) Executor {
+func NewExecutor(baseCliCmd string, verbose bool) Executor {
 	return Executor{
+		baseCliCmd: baseCliCmd,
 		verbose: verbose,
 		printer: printer.NewPrinter(),
 	}
