@@ -31,9 +31,9 @@ func (e Executor) println(a ...interface{}) {
 }
 
 func (e Executor) Exec(gitCmdArgs ...string) (string, error) {
-	e.println("CMD:\t", "git", strings.Join(gitCmdArgs, " "))
+	e.println("CMD:\t", e.baseCliCmd, strings.Join(gitCmdArgs, " "))
 
-	execCmd := exec.Command("git", gitCmdArgs...)
+	execCmd := exec.Command(e.baseCliCmd, gitCmdArgs...)
 	output, err := execCmd.CombinedOutput()
 	result := strings.TrimSuffix(string(output), "\n")
 

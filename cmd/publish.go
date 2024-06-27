@@ -16,6 +16,11 @@ var publishCmd = &cobra.Command{
 Open a pull request base on the previous branch of the stack.
 Show the GitHub link if the remote is GitHub.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		prChain, _ := cmd.Flags().GetBool("pr-chain")
+		if prChain {
+			return stacksManager().PrChain()
+		}
+		
 		return stacksManager().Publish()
 	},
 }

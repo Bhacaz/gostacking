@@ -457,6 +457,14 @@ func (sm StacksManager) Publish() error {
 	return nil
 }
 
+func (sm StacksManager) PrChain() error {
+	err := sm.ghCliConfigure()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (sm StacksManager) syncFirstBranch(firstBranch string, push bool, mergeDefaultBranch bool) error {
 	if mergeDefaultBranch {
 		defaultBranch, err := sm.defaultBranchWithRemote()
