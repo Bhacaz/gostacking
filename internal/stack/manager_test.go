@@ -1688,7 +1688,7 @@ func TestStacksManager_PrChain(t *testing.T) {
             t.Errorf("expected no error, got: %s", err)
         }
 
-        want := "main <- #123 <- #123\n"
+        want := "main ← #123 ← #123\n"
         if !strings.Contains(stacksManager.printerMessage(), want) {
             t.Errorf("got \"%s\", want \"%s\"", stacksManager.printerMessage(), want)
         }
