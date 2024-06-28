@@ -13,16 +13,18 @@ import (
 type StacksManager struct {
 	stacks      *StacksData
 	gitExecutor cliexec.InterfaceCliExecutor
+	ghExecutor cliexec.InterfaceCliExecutor
 	printer     printer.Printer
 }
 
-func NewManager(gitVerbose bool) StacksManager {
+func NewManager(cliVerbose bool) StacksManager {
 	return StacksManager{
 		stacks: &StacksData{
 			StacksPersister: StacksPersistingFile{},
 		},
 		printer:     printer.NewPrinter(),
-		gitExecutor: cliexec.NewExecutor("git", gitVerbose),
+		gitExecutor: cliexec.NewExecutor("git", cliVerbose),
+		ghExecutor: cliexec.NewExecutor("gh", cliVerbose),
 	}
 }
 
