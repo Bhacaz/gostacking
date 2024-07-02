@@ -10,4 +10,4 @@ git tag -a "$version" -m "Release $version"
 git push
 git push --tags
 
-goreleaser release --clean
+~/go/bin/goreleaser release --clean
