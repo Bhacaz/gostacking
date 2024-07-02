@@ -16,6 +16,11 @@ var publishCmd = &cobra.Command{
 Open a pull request base on the previous branch of the stack.
 Show the GitHub link if the remote is GitHub.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		prChain, _ := cmd.Flags().GetBool("pr-chain")
+		if prChain {
+			return stacksManager().PrChain()
+		}
+		
 		return stacksManager().Publish()
 	},
 }
@@ -32,4 +37,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// publishCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	publishCmd.Flags().BoolP("pr-chain", "p", false, "Display PR number chain of the stack with GH-CLI.")
 }

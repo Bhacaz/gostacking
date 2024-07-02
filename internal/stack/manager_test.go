@@ -2,8 +2,8 @@ package stack
 
 import (
 	"fmt"
+	"github.com/Bhacaz/gostacking/internal/cliexec"
 	"github.com/Bhacaz/gostacking/internal/color"
-	"github.com/Bhacaz/gostacking/internal/git"
 	"reflect"
 	"strings"
 	"testing"
@@ -22,11 +22,11 @@ func (p PrinterStub) Println(a ...interface{}) {
 	*p.MessageReceived = append(*p.MessageReceived, "\n")
 }
 
-type gitExecutorStub struct {
+type cliExecutorStub struct {
 	stubExec func(...string) (string, error)
 }
 
-func (g gitExecutorStub) Exec(command ...string) (string, error) {
+func (g cliExecutorStub) Exec(command ...string) (string, error) {
 	return g.stubExec(command...)
 }
 
@@ -34,7 +34,7 @@ func (sm StacksManager) printerMessage() string {
 	return strings.Join(*sm.printer.(PrinterStub).MessageReceived, "")
 }
 
-func StacksManagerForTest(gitExecutor git.InterfaceGitExecutor, messageReceived *[]string) StacksManager {
+func StacksManagerForTest(gitExecutor cliexec.InterfaceCliExecutor, messageReceived *[]string) StacksManager {
 	return StacksManager{
 		stacks:      stacksDataMock(),
 		gitExecutor: gitExecutor,
@@ -46,7 +46,7 @@ func StacksManagerForTest(gitExecutor git.InterfaceGitExecutor, messageReceived 
 
 func TestStacksManager_CreateStack(t *testing.T) {
 	t.Run("create stack", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				return "my_feature_part1", nil
 			},
@@ -78,7 +78,7 @@ func TestStacksManager_CreateStack(t *testing.T) {
 	})
 
 	t.Run("when currentBranchName return error", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				return "", fmt.Errorf("git command error")
 			},
@@ -96,7 +96,7 @@ func TestStacksManager_CreateStack(t *testing.T) {
 
 func TestStacksManager_CurrentStackStatus(t *testing.T) {
 	t.Run("current stack status", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				joinedCommand := strings.Join(command, " ")
 				// Ensure not being behind remote AND no diff with parent branch
@@ -131,7 +131,7 @@ Branches:
 	})
 
 	t.Run("current stack status with log", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				joinedCommand := strings.Join(command, " ")
 				// Ensure not being behind remote AND no diff with parent branch
@@ -170,7 +170,7 @@ Branches:
 	})
 
 	t.Run("when fetch return an error", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				if "fetch" == command[0] {
 					return "", fmt.Errorf("git command error")
@@ -190,7 +190,7 @@ Branches:
 	})
 
 	t.Run("when branch1 is behind remote", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				joinedCommand := strings.Join(command, " ")
 				// branch1 is behind remove
@@ -226,7 +226,7 @@ Branches:
 	})
 
 	t.Run("when branch1 is behind remote and with log", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				joinedCommand := strings.Join(command, " ")
 				// Ensure not being behind remote AND no diff with parent branch
@@ -266,7 +266,7 @@ Branches:
 	})
 
 	t.Run("when branch1 remote return an error", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				joinedCommand := strings.Join(command, " ")
 				// branch1 is behind remove
@@ -301,7 +301,7 @@ Branches:
 	})
 
 	t.Run("when branch2 has diff with parent branch", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				joinedCommand := strings.Join(command, " ")
 				fmt.Println(joinedCommand)
@@ -339,7 +339,7 @@ Branches:
 	})
 
 	t.Run("when branch2 has diff return an error", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				joinedCommand := strings.Join(command, " ")
 				fmt.Println(joinedCommand)
@@ -376,7 +376,7 @@ Branches:
 
 func TestStacksManager_AddBranch(t *testing.T) {
 	t.Run("when passing empty string", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				switch command[0] {
 				case "rev-parse":
@@ -404,7 +404,7 @@ func TestStacksManager_AddBranch(t *testing.T) {
 	})
 
 	t.Run("when passing empty string AND currentBranchName return error", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				switch command[0] {
 				case "rev-parse":
@@ -426,7 +426,7 @@ func TestStacksManager_AddBranch(t *testing.T) {
 	})
 
 	t.Run("when passing branch name", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				switch strings.Join(command, " ") {
 				case "rev-parse --verify my_branch":
@@ -455,7 +455,7 @@ func TestStacksManager_AddBranch(t *testing.T) {
 	})
 
 	t.Run("when passing branch name that does not exist", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				switch strings.Join(command, " ") {
 				case "rev-parse --verify non_existing_branch":
@@ -483,7 +483,7 @@ func TestStacksManager_AddBranch(t *testing.T) {
 	})
 
 	t.Run("when passing position 1 to be the first branch", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				return "", nil
 			},
@@ -511,7 +511,7 @@ func TestStacksManager_AddBranch(t *testing.T) {
 	})
 
 	t.Run("when passing position is greater then len of branches", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				return "", nil
 			},
@@ -539,7 +539,7 @@ func TestStacksManager_AddBranch(t *testing.T) {
 	})
 
 	t.Run("when the branch is already in the stack", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				return "", nil
 			},
@@ -567,7 +567,7 @@ func TestStacksManager_AddBranch(t *testing.T) {
 	})
 
 	t.Run("when no current stack", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				return "", nil
 			},
@@ -665,7 +665,7 @@ func TestStacksManager_SwitchByName(t *testing.T) {
 	})
 
 	t.Run("switch stack with empty args using currentBranchName", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				return "branch3", nil
 			},
@@ -689,7 +689,7 @@ func TestStacksManager_SwitchByName(t *testing.T) {
 	})
 
 	t.Run("switch stack with empty args using currentBranchName and currentBranchName return error", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				return "", fmt.Errorf("git command error")
 			},
@@ -705,7 +705,7 @@ func TestStacksManager_SwitchByName(t *testing.T) {
 	})
 
 	t.Run("switch stack with empty args and no stack was found for the currentBranchName", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				return "non_existing_branch", nil
 			},
@@ -903,7 +903,7 @@ func TestStacksManager_CheckoutByName(t *testing.T) {
 	t.Run("checkout branch by name", func(t *testing.T) {
 		var gitCommandsReceived []string
 
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				switch strings.Join(command, " ") {
 				case "checkout branch1":
@@ -936,7 +936,7 @@ func TestStacksManager_CheckoutByName(t *testing.T) {
 	t.Run("when checkout return an error", func(t *testing.T) {
 		var gitCommandsReceived []string
 
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				switch strings.Join(command, " ") {
 				case "rev-parse --verify branch1":
@@ -970,7 +970,7 @@ func TestStacksManager_CheckoutByName(t *testing.T) {
 func TestStacksManager_CheckoutByNumber(t *testing.T) {
 	t.Run("checkout branch by number", func(t *testing.T) {
 		var gitCommandsReceived []string
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				switch strings.Join(command, " ") {
 				case "checkout branch1":
@@ -1010,7 +1010,7 @@ func TestStacksManager_CheckoutByNumber(t *testing.T) {
 
 	t.Run("when checkout return an error", func(t *testing.T) {
 		var gitCommandsReceived []string
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				switch strings.Join(command, " ") {
 				case "checkout branch1":
@@ -1040,7 +1040,7 @@ func TestStacksManager_CheckoutByNumber(t *testing.T) {
 
 func TestStacksManager_Sync(t *testing.T) {
 	t.Run("when unstaged changes", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				return "file1.txt", nil
 			},
@@ -1061,7 +1061,7 @@ func TestStacksManager_Sync(t *testing.T) {
 	})
 
 	t.Run("when get currentBranchName return error", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				joinedCommand := strings.Join(command, " ")
 				if "rev-parse --abbrev-ref HEAD" == joinedCommand {
@@ -1086,7 +1086,7 @@ func TestStacksManager_Sync(t *testing.T) {
 	})
 
 	t.Run("when fetch return an error", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				if "fetch" == command[0] {
 					return "", fmt.Errorf("git command error")
@@ -1109,7 +1109,7 @@ func TestStacksManager_Sync(t *testing.T) {
 	})
 
 	t.Run("sync", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				return "", nil
 			},
@@ -1146,7 +1146,7 @@ Branch: %s
 	})
 
 	t.Run("when checkout return an error", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				joinedCommand := strings.Join(command, " ")
 				if "checkout branch1" == joinedCommand {
@@ -1170,7 +1170,7 @@ Branch: %s
 	})
 
 	t.Run("when pull return an error", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				joinedCommand := strings.Join(command, " ")
 				if "pull" == joinedCommand {
@@ -1194,7 +1194,7 @@ Branch: %s
 	})
 
 	t.Run("when pull return `There is no tracking information`", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				joinedCommand := strings.Join(command, " ")
 				if "pull" == joinedCommand {
@@ -1220,7 +1220,7 @@ Branch: %s
 	})
 
 	t.Run("when merge return an error", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				//joinedCommand := strings.Join(command, " ")
 				if command[0] == "merge" {
@@ -1245,7 +1245,7 @@ Branch: %s
 	})
 
 	t.Run("when sync with push flag", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				return "", nil
 			},
@@ -1286,7 +1286,7 @@ Branch: %s
 	})
 
 	t.Run("when push return `has no upstream branch`", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				if command[0] == "push" {
 					return "has no upstream branch", fmt.Errorf("push error")
@@ -1311,7 +1311,7 @@ Branch: %s
 	})
 
 	t.Run("when push return error", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				if command[0] == "push" {
 					return "", fmt.Errorf("push error")
@@ -1334,7 +1334,7 @@ Branch: %s
 	})
 
 	t.Run("when sync with merge default branch", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				if command[0] == "symbolic-ref" {
 					return "origin/main", nil
@@ -1376,7 +1376,7 @@ Branch: %s
 	})
 
 	t.Run("when defaultBranchWithRemote return an error", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				if command[0] == "symbolic-ref" {
 					return "", fmt.Errorf("symbolic-ref error")
@@ -1402,7 +1402,7 @@ Branch: %s
 
 func TestStacksManager_Tree(t *testing.T) {
 	t.Run("tree", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				return "abcdef Some commit message - 3 minutes ago", nil
 			},
@@ -1440,7 +1440,7 @@ func TestStacksManager_Tree(t *testing.T) {
 
 func TestStacksManager_Publish(t *testing.T) {
 	t.Run("publish current branch and first branch of the stack", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				if command[0] == "remote" {
 					return "git@github.com:User/AwesomeRepo.git", nil
@@ -1467,7 +1467,7 @@ func TestStacksManager_Publish(t *testing.T) {
 	})
 
 	t.Run("when the current branch not part of the current stack", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				return "invalid_branch", nil
 			},
@@ -1488,7 +1488,7 @@ func TestStacksManager_Publish(t *testing.T) {
 	})
 
 	t.Run("publish current branch and second branch of the stack", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				if command[0] == "remote" {
 					return "git@github.com:User/AwesomeRepo.git", nil
@@ -1515,7 +1515,7 @@ func TestStacksManager_Publish(t *testing.T) {
 	})
 
 	t.Run("when the remote is not on GitHub", func(t *testing.T) {
-		gitExecutor := gitExecutorStub{
+		gitExecutor := cliExecutorStub{
 			stubExec: func(command ...string) (string, error) {
 				if command[0] == "remote" {
 					return "git@gitlab.com:User/AwesomeRepo.git", nil
@@ -1537,4 +1537,160 @@ func TestStacksManager_Publish(t *testing.T) {
 			t.Errorf("got \"%s\", want \"%s\"", stacksManager.printerMessage(), want)
 		}
 	})
+}
+
+func TestStacksManager_PrChain(t *testing.T) {
+    t.Run("when ghCli not on the system", func(t *testing.T) {
+        ghExecutor := cliExecutorStub{
+            stubExec: func(command ...string) (string, error) {
+                return "executable file not found", fmt.Errorf("executable file not found")
+            },
+        }
+        var messageReceived []string
+
+        stacksManager := StacksManager{
+                stacks:      stacksDataMock(),
+                ghExecutor: ghExecutor,
+                printer: PrinterStub{
+                    MessageReceived: &messageReceived,
+                },
+            }
+
+        err := stacksManager.PrChain()
+
+        if err == nil {
+            t.Errorf("expected an error, got nil")
+        }
+
+        want := "GH-CLI not found"
+        if !strings.Contains(err.Error(), want) {
+            t.Errorf("got \"%s\", want \"%s\"", err.Error(), want)
+        }
+    })
+
+    t.Run("when ghCli not logged", func(t *testing.T) {
+        ghExecutor := cliExecutorStub{
+            stubExec: func(command ...string) (string, error) {
+                return "You are not logged", nil
+            },
+        }
+        var messageReceived []string
+
+        stacksManager := StacksManager{
+                stacks:      stacksDataMock(),
+                ghExecutor: ghExecutor,
+                printer: PrinterStub{
+                    MessageReceived: &messageReceived,
+                },
+            }
+
+        err := stacksManager.PrChain()
+
+        if err == nil {
+            t.Errorf("expected an error, got nil")
+        }
+
+        want := "You are not logged"
+        if !strings.Contains(err.Error(), want) {
+            t.Errorf("got \"%s\", want \"%s\"", err.Error(), want)
+        }
+    })
+
+    t.Run("when ghCli not logged", func(t *testing.T) {
+        ghExecutor := cliExecutorStub{
+            stubExec: func(command ...string) (string, error) {
+                return "", fmt.Errorf("something went wrong")
+            },
+        }
+        var messageReceived []string
+
+        stacksManager := StacksManager{
+                stacks:      stacksDataMock(),
+                ghExecutor: ghExecutor,
+                printer: PrinterStub{
+                    MessageReceived: &messageReceived,
+                },
+            }
+
+        err := stacksManager.PrChain()
+
+        if err == nil {
+            t.Errorf("expected an error, got nil")
+        }
+
+        want := "something went wrong"
+        if !strings.Contains(err.Error(), want) {
+            t.Errorf("got \"%s\", want \"%s\"", err.Error(), want)
+        }
+    })
+
+    t.Run("when no PR for a branch", func(t *testing.T) {
+        gitExecutor := cliExecutorStub{
+                        stubExec: func(command ...string) (string, error) {
+                            return "origin/main", nil
+                        },
+                    }
+
+        ghExecutor := cliExecutorStub{
+            stubExec: func(command ...string) (string, error) {
+                return "no pull requests found for branch", fmt.Errorf("no pull requests found for branch")
+            },
+        }
+        var messageReceived []string
+
+        stacksManager := StacksManager{
+                stacks:      stacksDataMock(),
+                ghExecutor: ghExecutor,
+                gitExecutor: gitExecutor,
+                printer: PrinterStub{
+                    MessageReceived: &messageReceived,
+                },
+            }
+
+        err := stacksManager.PrChain()
+
+        if err == nil {
+            t.Errorf("expected an error, got nil")
+        }
+
+        want := "no pull requests found for branch"
+        if !strings.Contains(err.Error(), want) {
+            t.Errorf("got \"%s\", want \"%s\"", err.Error(), want)
+        }
+    })
+
+    t.Run("when no PR for a branch", func(t *testing.T) {
+        gitExecutor := cliExecutorStub{
+                        stubExec: func(command ...string) (string, error) {
+                            return "origin/main", nil
+                        },
+                    }
+
+        ghExecutor := cliExecutorStub{
+            stubExec: func(command ...string) (string, error) {
+                return "123", nil
+            },
+        }
+        var messageReceived []string
+
+        stacksManager := StacksManager{
+                stacks:      stacksDataMock(),
+                ghExecutor: ghExecutor,
+                gitExecutor: gitExecutor,
+                printer: PrinterStub{
+                    MessageReceived: &messageReceived,
+                },
+            }
+
+        err := stacksManager.PrChain()
+
+        if err != nil {
+            t.Errorf("expected no error, got: %s", err)
+        }
+
+        want := "main ← #123 ← #123\n"
+        if !strings.Contains(stacksManager.printerMessage(), want) {
+            t.Errorf("got \"%s\", want \"%s\"", stacksManager.printerMessage(), want)
+        }
+    })
 }

@@ -3,8 +3,8 @@ package stack
 import (
 	"errors"
 	"fmt"
+	"github.com/Bhacaz/gostacking/internal/cliexec"
 	"github.com/Bhacaz/gostacking/internal/color"
-	"github.com/Bhacaz/gostacking/internal/git"
 	"github.com/Bhacaz/gostacking/internal/printer"
 	"slices"
 	"strings"
@@ -12,17 +12,19 @@ import (
 
 type StacksManager struct {
 	stacks      *StacksData
-	gitExecutor git.InterfaceGitExecutor
+	gitExecutor cliexec.InterfaceCliExecutor
+	ghExecutor cliexec.InterfaceCliExecutor
 	printer     printer.Printer
 }
 
-func NewManager(gitVerbose bool) StacksManager {
+func NewManager(cliVerbose bool) StacksManager {
 	return StacksManager{
 		stacks: &StacksData{
 			StacksPersister: StacksPersistingFile{},
 		},
 		printer:     printer.NewPrinter(),
-		gitExecutor: git.NewExecutor(gitVerbose),
+		gitExecutor: cliexec.NewExecutor("git", cliVerbose),
+		ghExecutor: cliexec.NewExecutor("gh", cliVerbose),
 	}
 }
 
@@ -454,6 +456,35 @@ func (sm StacksManager) Publish() error {
 		sm.printer.Println(githubRepoUrl + "/compare/" + previousBranch + "..." + currentBranch + "?expand=1")
 	}
 
+	return nil
+}
+
+func (sm StacksManager) PrChain() error {
+	err := sm.ghCliConfigure()
+	if err != nil {
+		return err
+	}
+
+	sm.stacks.LoadStacks()
+	data := *sm.stacks
+	branches, _ := data.GetBranchesByName(data.CurrentStack)
+
+	defaultBranch, err := sm.defaultBranch()
+	if err != nil {
+		return err
+	}
+
+	result := defaultBranch
+
+	for _, branch := range branches {
+		prNumber, err := sm.ghPrNumber(branch)
+		if err != nil {
+			return err
+		}
+		result += fmt.Sprint(" ← ", "#", prNumber)
+	}
+
+	sm.printer.Println(result)
 	return nil
 }
 

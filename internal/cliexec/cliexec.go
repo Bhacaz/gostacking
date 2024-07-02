@@ -1,4 +1,4 @@
-package git
+package cliexec
 
 import (
 	"github.com/Bhacaz/gostacking/internal/printer"
@@ -6,17 +6,19 @@ import (
 	"strings"
 )
 
-type InterfaceGitExecutor interface {
+type InterfaceCliExecutor interface {
 	Exec(command ...string) (string, error)
 }
 
 type Executor struct {
+	baseCliCmd string
 	verbose bool
 	printer printer.Printer
 }
 
-func NewExecutor(verbose bool) Executor {
+func NewExecutor(baseCliCmd string, verbose bool) Executor {
 	return Executor{
+		baseCliCmd: baseCliCmd,
 		verbose: verbose,
 		printer: printer.NewPrinter(),
 	}
@@ -29,9 +31,9 @@ func (e Executor) println(a ...interface{}) {
 }
 
 func (e Executor) Exec(gitCmdArgs ...string) (string, error) {
-	e.println("CMD:\t", "git", strings.Join(gitCmdArgs, " "))
+	e.println("CMD:\t", e.baseCliCmd, strings.Join(gitCmdArgs, " "))
 
-	execCmd := exec.Command("git", gitCmdArgs...)
+	execCmd := exec.Command(e.baseCliCmd, gitCmdArgs...)
 	output, err := execCmd.CombinedOutput()
 	result := strings.TrimSuffix(string(output), "\n")
 
