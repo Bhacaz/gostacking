@@ -17,7 +17,7 @@ var rootCmd = &cobra.Command{
 	Short: "Git stacking with merge.",
 	Long: `Git stacking with merge.
 Written in go.`,
-	Version: "v0.10.1",
+	Version: "v0.10.2",
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
