@@ -474,14 +474,19 @@ func (sm StacksManager) PrChain() error {
 		return err
 	}
 
-	result := defaultBranch
+	result := "* " + defaultBranch + "\n"
 
-	for _, branch := range branches {
+	for i, branch := range branches {
 		prNumber, err := sm.ghPrNumber(branch)
 		if err != nil {
 			return err
 		}
-		result += fmt.Sprint(" ← ", "#", prNumber)
+		
+		if i == len(branches)-1 {
+			result += fmt.Sprintf("* └─ #%s\n", prNumber)
+		} else {
+			result += fmt.Sprintf("* ├─ #%s\n", prNumber)
+		}
 	}
 
 	sm.printer.Println(result)
